@@ -39,15 +39,17 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+  touch-action: pan-y;
 }
 
 body {
   font-family: 'Special Elite', monospace;
   background: var(--paper);
   color: var(--ink);
-  overflow-x: hidden;
 }
 
 /* Paper grain overlay */
@@ -216,6 +218,12 @@ body::before {
 }
 
 /* === Blog article prose === */
+.prose-ob {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
 .prose-ob h2 {
   font-family: 'Unbounded', sans-serif;
   font-weight: 900;

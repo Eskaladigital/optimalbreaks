@@ -2,7 +2,14 @@
 // OPTIMAL BREAKS — 404 Not Found
 // ============================================
 
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: '404 — Track not found',
+  description: 'This page does not exist on Optimal Breaks.',
+  robots: { index: false, follow: true },
+}
 
 export default function NotFound() {
   return (

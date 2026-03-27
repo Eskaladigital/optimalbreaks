@@ -1,8 +1,11 @@
 // ============================================
-// OPTIMAL BREAKS — Blog Post Detail Page
+// OPTIMAL BREAKS — Blog Post Detail (Secure)
+// Sanitized HTML, validated slug
 // ============================================
 
-import { createServerSupabase } from '@/lib/supabase'
+import { createServerSupabase } from '@/lib/supabase-server'
+import { detailPageMetadata, siteNameForLang } from '@/lib/seo'
+import { sanitizeHtml, sanitizeSlug, validateLocale } from '@/lib/security'
 import type { Locale } from '@/lib/i18n-config'
 import type { BlogPost } from '@/types/database'
 import type { Metadata } from 'next'
@@ -14,67 +17,81 @@ type BlogSeoRow = Pick<BlogPost, 'title_en' | 'title_es' | 'excerpt_en' | 'excer
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params
-  const supabase = createServerSupabase()
-  const { data: raw } = await supabase.from('blog_posts').select('title_en, title_es, excerpt_en, excerpt_es').eq('slug', slug).single()
-  const data = raw as BlogSeoRow | null
-  if (!data) return { title: 'Post Not Found' }
-  const title = lang === 'es' ? data.title_es : data.title_en
-  const description = lang === 'es' ? data.excerpt_es : data.excerpt_en
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-    },
+  const safeLang = validateLocale(lang)
+  const safeSlug = sanitizeSlug(slug)
+  if (!safeSlug) {
+    return {
+      title: safeLang === 'es' ? 'Entrada no encontrada' : 'Post not found',
+      robots: { index: false, follow: true },
+    }
   }
+
+  const supabase = createServerSupabase()
+  const { data: raw } = await supabase.from('blog_posts').select('title_en, title_es, excerpt_en, excerpt_es').eq('slug', safeSlug).single()
+  const data = raw as BlogSeoRow | null
+  if (!data) {
+    return {
+      title: safeLang === 'es' ? 'Entrada no encontrada' : 'Post not found',
+      robots: { index: false, follow: true },
+    }
+  }
+
+  const title = safeLang === 'es' ? data.title_es : data.title_en
+  const description = safeLang === 'es' ? data.excerpt_es : data.excerpt_en
+  const siteName = await siteNameForLang(safeLang)
+  return detailPageMetadata(safeLang, `/blog/${safeSlug}`, siteName, title, description, 'article')
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const { lang, slug } = await params
+  const safeLang = validateLocale(lang)
+  const safeSlug = sanitizeSlug(slug)
+
   const supabase = createServerSupabase()
-  const { data: rawPost } = await supabase.from('blog_posts').select('*').eq('slug', slug).eq('is_published', true).single()
+  let rawPost: unknown = null
+  if (safeSlug) {
+    const res = await supabase.from('blog_posts').select('*').eq('slug', safeSlug).eq('is_published', true).single()
+    rawPost = res.data
+  }
   const post = rawPost as BlogPost | null
 
   if (!post) {
     return (
       <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20 max-w-[800px] mx-auto">
-        <Link href={`/${lang}/blog`} className="cutout outline no-underline mb-6 inline-block">
-          ← {lang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
+        <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">
+          ← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
         </Link>
         <div className="sec-tag">BLOG</div>
         <h1 className="sec-title text-[clamp(24px,5vw,44px)]">
-          <span className="hl">{slug.replace(/-/g, ' ').toUpperCase()}</span>
+          <span className="hl">{safeSlug.replace(/-/g, ' ').toUpperCase()}</span>
         </h1>
-        <div className="mt-6 p-4 sm:p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
+        <div className="mt-6 p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
           <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '24px', color: 'var(--yellow)', marginBottom: '12px' }}>
-            {lang === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}
+            {safeLang === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}
           </div>
           <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.8, color: 'rgba(232,220,200,0.6)' }}>
-            {lang === 'es'
-              ? 'Este artículo se está preparando. Pronto estará disponible.'
-              : 'This article is being prepared. It will be available soon.'}
+            {safeLang === 'es' ? 'Este artículo se está preparando.' : 'This article is being prepared.'}
           </p>
         </div>
       </div>
     )
   }
 
-  const title = lang === 'es' ? post.title_es : post.title_en
-  const content = lang === 'es' ? post.content_es : post.content_en
+  const title = safeLang === 'es' ? post.title_es : post.title_en
+  // SECURITY: Sanitize HTML content from database before rendering
+  const rawContent = safeLang === 'es' ? post.content_es : post.content_en
+  const content = sanitizeHtml(rawContent || '')
 
   return (
     <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20 max-w-[800px] mx-auto">
-      <Link href={`/${lang}/blog`} className="cutout outline no-underline mb-6 inline-block">
-        ← {lang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
+      <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">
+        ← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
       </Link>
 
-      {/* Category + date */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
         <span className="cutout red">{post.category}</span>
         <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: '11px', color: 'var(--dim)' }}>
-          {new Date(post.published_at).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date(post.published_at).toLocaleDateString(safeLang === 'es' ? 'es-ES' : 'en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
         </span>
       </div>
 
@@ -82,12 +99,10 @@ export default async function BlogPostPage({ params }: Props) {
         <span className="hl">{title}</span>
       </h1>
 
-      {/* Author */}
       <div className="mb-8" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '12px', letterSpacing: '2px', color: 'var(--dim)' }}>
-        {lang === 'es' ? 'POR' : 'BY'} {post.author?.toUpperCase()}
+        {safeLang === 'es' ? 'POR' : 'BY'} {post.author?.toUpperCase()}
       </div>
 
-      {/* Tags */}
       {post.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-8">
           {post.tags.map((t: string, i: number) => (
@@ -96,17 +111,16 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       )}
 
-      {/* Content */}
+      {/* SECURITY: Content is sanitized via sanitizeHtml() before rendering */}
       <article
         className="prose-ob"
         style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.9 }}
-        dangerouslySetInnerHTML={{ __html: content || '' }}
+        dangerouslySetInnerHTML={{ __html: content }}
       />
 
-      {/* Back */}
       <div className="mt-12 pt-8 border-t-4 border-dashed border-[var(--ink)]">
-        <Link href={`/${lang}/blog`} className="cutout red no-underline">
-          ← {lang === 'es' ? 'MÁS ARTÍCULOS' : 'MORE ARTICLES'}
+        <Link href={`/${safeLang}/blog`} className="cutout red no-underline">
+          ← {safeLang === 'es' ? 'MÁS ARTÍCULOS' : 'MORE ARTICLES'}
         </Link>
       </div>
     </div>

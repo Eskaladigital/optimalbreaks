@@ -5,6 +5,8 @@
 
 import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
+import { staticPageMetadata } from '@/lib/seo'
+import type { Metadata } from 'next'
 import DjDeck from '@/components/DjDeck'
 import Marquee from '@/components/Marquee'
 import Timeline from '@/components/Timeline'
@@ -12,19 +14,24 @@ import ArtistCard from '@/components/ArtistCard'
 import EventFlyer from '@/components/EventFlyer'
 
 const FEATURED_ARTISTS = [
-  { name: 'THE PRODIGY', genres: ['Big Beat', 'Rave', 'Punk'], desc_en: 'Liam Howlett and crew redefined live electronic music. Aggressive, wild and absolutely iconic.', desc_es: 'Liam Howlett y crew redefinieron la electrónica en directo. Agresivos, salvajes y absolutamente icónicos.' },
-  { name: 'FATBOY SLIM', genres: ['Big Beat', 'Funk'], desc_en: 'Norman Cook turned breaks into a planetary party. Anthems that define entire festivals.', desc_es: 'Norman Cook convirtió los breaks en fiesta planetaria. Himnos que definen festivales enteros.' },
-  { name: 'CHEMICAL BROTHERS', genres: ['Big Beat', 'Psychedelic'], desc_en: 'Tom and Ed mixed breaks with psychedelia and rock. A sound universe beyond labels.', desc_es: 'Tom y Ed mezclaron breaks con psicodelia y rock. Un universo sonoro sin etiquetas.' },
-  { name: 'STANTON WARRIORS', genres: ['Nu Skool', 'Bass'], desc_en: 'Fat bass, clever samples and devastating sets. Nu skool with its own name.', desc_es: 'Bass gordo, samples listos y sets que arrasan. Nu skool con nombre propio.' },
-  { name: 'ADAM FREELAND', genres: ['Progressive', 'Breaks'], desc_en: 'Marine Parade. Elegance and power. Pushed breaks into new territories.', desc_es: 'Marine Parade. Elegancia y contundencia. Empujó el break hacia nuevos territorios.' },
-  { name: 'KRAFTY KUTS', genres: ['Breaks', 'Hip-Hop'], desc_en: 'The bridge between breaks and hip-hop. Scratching, sampling and flow over broken rhythms.', desc_es: 'El puente entre breaks y hip-hop. Scratching, sampling y flow sobre ritmos rotos.' },
+  { name: 'DJ KOOL HERC', genres: ['Origins', 'Hip-Hop', 'Breaks'], desc_en: 'The DJ logic of stretching breaks begins here. Without Herc, the whole map looks different.', desc_es: 'Aquí empieza la lógica DJ de alargar breaks. Sin Herc, todo el mapa posterior cambia.' },
+  { name: 'THE PRODIGY', genres: ['Rave', 'Big Beat', 'Punk'], desc_en: 'They made British rave aggression legible to the world and turned broken rhythm into mass culture.', desc_es: 'Volvieron legible al mundo la agresión rave británica e hicieron del ritmo roto cultura de masas.' },
+  { name: 'CHEMICAL BROTHERS', genres: ['Big Beat', 'Psychedelic'], desc_en: 'They pushed breaks into psychedelic scale and crossover visibility.', desc_es: 'Llevaron los breaks a una escala psicodélica y de gran cruce popular.' },
+  { name: 'STANTON WARRIORS', genres: ['Nu Skool', 'Bass'], desc_en: 'One of the names that best define the international face of nu skool breaks.', desc_es: 'Uno de los nombres que mejor define la cara internacional del nu skool breaks.' },
+  { name: 'KRAFTY KUTS', genres: ['Breaks', 'Hip-Hop', 'DJ'], desc_en: 'A key bridge between breakbeat, DJ culture and the years of digital continuity.', desc_es: 'Puente clave entre breakbeat, cultura DJ y los años de continuidad digital.' },
+  { name: 'LADY WAKS', genres: ['Breaks', 'Radio', 'Community'], desc_en: 'Proof that the scene kept breathing through regular mixes, radio and online presence.', desc_es: 'Prueba de que la escena siguió respirando gracias a mixes regulares, radio y presencia online.' },
 ]
 
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  const { lang } = await params
+  return staticPageMetadata(lang, '', 'home')
+}
+
 const FEATURED_EVENTS = [
-  { date_en: '12 April 2026', date_es: '12 Abril 2026', name: 'BREAKPOINT FESTIVAL', location: 'Warehouse BCN — Barcelona', type: 'FESTIVAL' },
-  { date_en: '23 May 2026', date_es: '23 Mayo 2026', name: 'NU BREAKS SESSIONS', location: 'Fabric — London', type: 'CLUB' },
-  { date_en: '15 June 2026', date_es: '15 Junio 2026', name: 'AMEN GATHERING', location: 'Tresor — Berlin', type: 'RAVE' },
-  { date_en: '08 Sept 2026', date_es: '08 Sept 2026', name: 'OPTIMAL BREAKS SHOWCASE', location: 'Sala B — Murcia', type: 'HOME' },
+  { date_en: '1973', date_es: '1973', name: 'BRONX BLOCK PARTIES', location: 'Bronx — New York', type: 'ORIGIN' },
+  { date_en: '1988-1992', date_es: '1988-1992', name: 'UK WAREHOUSE RAVES', location: 'London and beyond', type: 'RAVE' },
+  { date_en: '2003-2015', date_es: '2003-2015', name: 'BREAKSPOLL', location: 'Fabric / Cable / Manchester', type: 'AWARDS' },
+  { date_en: '2 Mar 2002', date_es: '2 Mar 2002', name: 'MARTIN CARPENA', location: 'Malaga — Andalusia', type: 'TURNING' },
 ]
 
 export default async function HomePage({
@@ -226,7 +233,7 @@ export default async function HomePage({
       {/* ===== CTA ===== */}
       <div className="text-center px-3 sm:px-6 py-12 sm:py-[100px] bg-[var(--red)] text-white border-t-8 border-b-8 border-[var(--ink)]">
         <h2
-          className="break-words max-w-[100vw] mx-auto px-1"
+          className="break-words max-w-full mx-auto px-1"
           style={{
             fontFamily: "'Unbounded', sans-serif",
             fontWeight: 900,

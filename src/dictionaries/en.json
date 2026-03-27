@@ -164,11 +164,11 @@
   },
   "labels": {
     "title": "Labels",
-    "subtitle": "The record labels that shaped the sound"
+    "subtitle": "Labels, catalogues and infrastructure: who shaped and sustained the sound"
   },
   "events": {
     "title": "Events",
-    "subtitle": "Past, present and future of breakbeat events",
+    "subtitle": "Landmarks, festivals, nights and turning points in breakbeat history",
     "filters": {
       "all": "All",
       "festival": "Festivals",
@@ -179,20 +179,20 @@
   },
   "scenes": {
     "title": "Scenes",
-    "subtitle": "How breakbeat changed across territories"
+    "subtitle": "The territorial map of breakbeat: origins, countries, regions and local ecosystems"
   },
   "blog": {
     "title": "Blog",
-    "subtitle": "Articles, opinions, rankings, retrospectives"
+    "subtitle": "The project’s editorial layer: essays, comparisons, scene memory and retrospectives"
   },
   "mixes": {
     "title": "Mixes & Sets",
-    "subtitle": "Essential mixes, classic sets, radio shows"
+    "subtitle": "Essential sets, radio, podcasts and the scene’s digital continuity"
   },
   "about": {
     "title": "About",
     "subtitle": "What is Optimal Breaks",
-    "description": "Optimal Breaks is an archive, magazine, guide, agenda and scene memory. A project dedicated to preserving and celebrating breakbeat culture.",
+    "description": "Optimal Breaks is both archive and magazine: stable reference material lives in structural sections, while the blog is reserved for editorial, comparative and scene-memory pieces.",
     "contact": "Contact",
     "collaborate": "Collaborate",
     "submit_event": "Submit an Event",
@@ -206,6 +206,58 @@
     "no_results": "No results found",
     "search": "Search",
     "since": "Since 2026"
+  },
+  "seo": {
+    "site_name": "Optimal Breaks",
+    "default_keywords": "breakbeat, breaks, nu skool breaks, big beat, UK bass, jungle, drum and bass, rave, dance music history, Florida breaks, breakbeat history",
+    "home": {
+      "title": "The breakbeat bible — archive, history and culture",
+      "description": "Optimal Breaks: breakbeat history from the Bronx to UK bass, artists, scenes, events and dancefloor memory. Bilingual archive and guide."
+    },
+    "history": {
+      "title": "Breakbeat history — origins, UK, Andalusia and the digital era",
+      "description": "Full timeline: funk and Kool Herc, UK rave and hardcore, US breaks, the Andalusian wave, Australia, decline and resilience, Beatport and DJ culture."
+    },
+    "artists": {
+      "title": "Breakbeat artists and key figures",
+      "description": "Profiles, tags and timelines of essential names—from hip hop and the Amen break to nu skool, UK bass and today’s scene."
+    },
+    "labels": {
+      "title": "Record labels shaping broken beats",
+      "description": "Labels that defined big beat, nu skool breaks, jungle and breaks: a map for digging discographies and sounds."
+    },
+    "events": {
+      "title": "Breakbeat events, festivals and club nights",
+      "description": "Calendar and archive of parties, festivals and sessions: iconic past, present and future of break culture on the floor."
+    },
+    "scenes": {
+      "title": "Regional breakbeat scenes worldwide",
+      "description": "How breakbeat landed in the UK, US, Andalusia and beyond: local identities, sounds and cross-genre connections."
+    },
+    "blog": {
+      "title": "Blog — articles, opinion and retrospectives",
+      "description": "Editorial pieces on breakbeat, rankings, interviews and scene memory from Optimal Breaks."
+    },
+    "mixes": {
+      "title": "Essential mixes, sets and radio shows",
+      "description": "Curated classic mixes, video sessions and radio essentials to follow the thread of breakbeat and breaks culture."
+    },
+    "about": {
+      "title": "About Optimal Breaks",
+      "description": "Archive-magazine-guide project preserving and celebrating breakbeat culture: who we are and how to collaborate."
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "description": "How optimalbreaks.com processes personal data under applicable privacy laws."
+    },
+    "terms": {
+      "title": "Terms of use",
+      "description": "Legal terms for using the Optimal Breaks website and its content."
+    },
+    "cookies": {
+      "title": "Cookie policy",
+      "description": "Cookies and similar technologies on optimalbreaks.com and how to manage your preferences."
+    }
   },
   "footer": {
     "copy": "Optimal Breaks — breakbeat culture archive",

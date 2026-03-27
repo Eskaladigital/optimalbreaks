@@ -1,129 +1,146 @@
 // ============================================
-// OPTIMAL BREAKS — History Page
+// OPTIMAL BREAKS — History Page (Supabase)
 // ============================================
 
+import { createServerSupabase } from '@/lib/supabase-server'
 import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
+import type { HistoryEntry } from '@/types/database'
+import { staticPageMetadata } from '@/lib/seo'
+import type { Metadata } from 'next'
 
-type HistoryLink = { label: string; href: string }
-type HistoryBlock = { title: string; paragraphs: string[]; links?: HistoryLink[] }
+type HistorySection = {
+  title: string
+  paragraphs: string[]
+  links?: Array<{ label: string; href: string }>
+}
 
-const SECTION_ORDER = [
-  { key: 'origins', year: '1970s', color: 'var(--yellow)' },
-  { key: 'uk_breakbeat', year: '1980–90s', color: 'var(--red)' },
-  { key: 'us_breaks', year: '1990s', color: 'var(--blue)' },
-  { key: 'andalusian', year: '1992–2002', color: 'var(--orange)' },
-  { key: 'australian', year: '2000s', color: 'var(--acid)' },
-  { key: 'rise_decline_revival', year: '2000–2020', color: 'var(--pink)' },
-  { key: 'digital_era', year: '2020+', color: 'var(--uv)' },
-] as const
+type HistorySectionMap = Record<string, HistorySection>
+
+type RenderEntry = {
+  slug: string
+  section: string
+  yearLabel: string
+  title: string
+  content: string
+}
+
+const SECTION_RANGES: Record<string, string> = {
+  origins: '1973 — 1986',
+  uk_breakbeat: '1988 — 2004',
+  us_breaks: '1980s — 2000s',
+  andalusian: '1992 — 2002',
+  australian: '2001 — 2025',
+  rise_decline_revival: '2005 — hoy',
+  digital_era: '1998 — hoy',
+}
+
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  const { lang } = await params
+  return staticPageMetadata(lang, '/history', 'history')
+}
+
+const SECTION_COLORS: Record<string, string> = {
+  origins: 'var(--yellow)',
+  uk_breakbeat: 'var(--red)',
+  us_breaks: 'var(--blue)',
+  andalusian: 'var(--orange)',
+  australian: 'var(--acid)',
+  rise_decline_revival: 'var(--pink)',
+  digital_era: 'var(--uv)',
+}
 
 export default async function HistoryPage({ params }: { params: { lang: Locale } }) {
   const { lang } = await params
   const dict = await getDictionary(lang)
-  const history = dict.history as {
-    title: string
-    subtitle: string
-    sections: Record<string, HistoryBlock>
-  }
+  const supabase = createServerSupabase()
+  const { data: entries } = await supabase.from('history_entries').select('*').order('sort_order', { ascending: true })
+  const list = (entries || []) as HistoryEntry[]
+  const sectionMap = dict.history.sections as HistorySectionMap
+
+  const fallbackEntries: RenderEntry[] = Object.entries(sectionMap).map(([section, value]) => ({
+    slug: section,
+    section,
+    yearLabel: SECTION_RANGES[section] || 'Historia viva',
+    title: value.title,
+    content: [
+      ...value.paragraphs.map((paragraph) => `<p>${paragraph}</p>`),
+      ...(value.links || []).map(
+        (link) =>
+          `<p><a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.label}</a></p>`,
+      ),
+    ].join(''),
+  }))
+
+  const renderEntries: RenderEntry[] =
+    list.length > 0
+      ? list.map((entry) => ({
+          slug: entry.slug,
+          section: entry.section,
+          yearLabel: entry.year_end ? `${entry.year_start} — ${entry.year_end}` : `${entry.year_start}`,
+          title: lang === 'es' ? entry.title_es : entry.title_en,
+          content: lang === 'es' ? entry.content_es : entry.content_en,
+        }))
+      : fallbackEntries
 
   return (
-    <div className="lined min-h-screen">
-      <section className="px-3 sm:px-6 py-12 sm:py-20 border-b-[5px] border-[var(--ink)]">
+    <div className="min-h-screen">
+      {/* Hero */}
+      <section className="lined px-4 sm:px-6 py-14 sm:py-20 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">HISTORY</div>
-        <h1 className="sec-title">
-          {history.title}
-          <br />
-          <span className="hl">BREAKBEAT</span>
-        </h1>
-        <p
-          style={{
-            fontFamily: "'Special Elite', monospace",
-            fontSize: 'clamp(15px, 3.6vw, 17px)',
-            lineHeight: 1.8,
-            maxWidth: '820px',
-            color: 'var(--dim)',
-          }}
-        >
-          {history.subtitle}
-        </p>
+        <h1 className="sec-title">{dict.history.title}<br /><span className="hl">BREAKBEAT</span></h1>
+        <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '17px', lineHeight: 1.8, maxWidth: '700px', color: 'var(--dim)' }}>{dict.history.subtitle}</p>
       </section>
 
-      <section className="px-3 sm:px-6 py-10 sm:py-12 max-w-[900px]">
-        {SECTION_ORDER.map(({ key, year, color }) => {
-          const block = history.sections?.[key]
-          if (!block) return null
+      {renderEntries.map((entry, i) => {
+        const isDark = i % 2 === 1
+        const color = SECTION_COLORS[entry.section] || 'var(--red)'
 
-          return (
-            <article
-              key={key}
-              id={key}
-              className="mb-16 pb-16 border-b-[3px] border-[var(--ink)] last:border-b-0 last:pb-0"
-            >
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-6">
-                <span
-                  style={{
-                    fontFamily: "'Permanent Marker', cursive",
-                    fontSize: 'clamp(24px, 5vw, 34px)',
-                    color,
-                  }}
-                >
-                  {year}
-                </span>
-                <h2
-                  className="flex-1 min-w-0"
-                  style={{
-                    fontFamily: "'Unbounded', sans-serif",
-                    fontWeight: 900,
-                    fontSize: 'clamp(18px, 3.5vw, 26px)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '-0.5px',
-                    lineHeight: 1.15,
-                  }}
-                >
-                  {block.title}
-                </h2>
+        return (
+          <section
+            key={entry.slug}
+            className={`px-4 sm:px-6 py-14 sm:py-20 ${isDark ? 'bg-[var(--ink)] text-[var(--paper)]' : 'lined'}`}
+            style={isDark ? { borderTop: `6px solid ${color}`, borderBottom: `6px solid ${color}` } : {}}
+          >
+            <div className="max-w-[800px] mx-auto">
+              <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: 'clamp(36px, 8vw, 60px)', color, lineHeight: 1, marginBottom: '12px' }}>
+                {entry.yearLabel}
               </div>
 
-              <div
-                className="space-y-4"
+              <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(22px, 4vw, 36px)', textTransform: 'uppercase', letterSpacing: '-1px', marginBottom: '20px' }}>
+                {entry.title}
+              </h2>
+
+              <span
+                className="inline-block mb-6"
                 style={{
-                  fontFamily: "'Special Elite', monospace",
-                  fontSize: '15px',
-                  lineHeight: 1.85,
-                  color: 'var(--ink)',
+                  fontFamily: "'Courier Prime', monospace",
+                  fontWeight: 700,
+                  fontSize: '9px',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  padding: '3px 10px',
+                  background: color,
+                  color: isDark ? 'var(--ink)' : 'white',
                 }}
               >
-                {block.paragraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
+                {entry.section.replace(/_/g, ' ')}
+              </span>
 
-              {block.links && block.links.length > 0 && (
-                <ul className="mt-8 flex flex-col gap-2 list-none p-0">
-                  {block.links.map((link) => (
-                    <li key={link.href}>
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline underline-offset-4 decoration-2 decoration-[var(--red)] hover:bg-[var(--yellow)]"
-                        style={{
-                          fontFamily: "'Courier Prime', monospace",
-                          fontSize: '13px',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        {link.label} ↗
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
-          )
-        })}
-      </section>
+              <div
+                className="prose-ob"
+                style={{
+                  fontFamily: "'Special Elite', monospace",
+                  fontSize: '16px',
+                  lineHeight: 1.9,
+                  color: isDark ? 'rgba(232,220,200,0.75)' : 'var(--ink)',
+                }}
+                dangerouslySetInnerHTML={{ __html: entry.content }}
+              />
+            </div>
+          </section>
+        )
+      })}
     </div>
   )
 }

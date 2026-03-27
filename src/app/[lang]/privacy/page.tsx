@@ -4,8 +4,12 @@
 
 import type { Locale } from '@/lib/i18n-config'
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = { title: 'Privacy Policy' }
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  const { lang } = await params
+  return staticPageMetadata(lang, '/privacy', 'privacy')
+}
 
 export default async function PrivacyPage({ params }: { params: { lang: Locale } }) {
   const { lang } = await params

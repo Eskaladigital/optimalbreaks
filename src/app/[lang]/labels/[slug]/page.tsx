@@ -2,7 +2,8 @@
 // OPTIMAL BREAKS — Label Detail Page
 // ============================================
 
-import { createServerSupabase } from '@/lib/supabase'
+import { createServerSupabase } from '@/lib/supabase-server'
+import { detailPageMetadata, siteNameForLang } from '@/lib/seo'
 import type { Locale } from '@/lib/i18n-config'
 import type { Label } from '@/types/database'
 import type { Metadata } from 'next'
@@ -17,11 +18,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServerSupabase()
   const { data: raw } = await supabase.from('labels').select('name, description_en, description_es').eq('slug', slug).single()
   const data = raw as LabelSeoRow | null
-  if (!data?.name) return { title: 'Label Not Found' }
-  return {
-    title: data.name,
-    description: (lang === 'es' ? data.description_es : data.description_en)?.slice(0, 160),
+  if (!data?.name) {
+    return {
+      title: lang === 'es' ? 'Sello no encontrado' : 'Label not found',
+      robots: { index: false, follow: true },
+    }
   }
+  const siteName = await siteNameForLang(lang)
+  const description = (lang === 'es' ? data.description_es : data.description_en)?.slice(0, 160)
+  return detailPageMetadata(lang, `/labels/${slug}`, siteName, data.name, description, 'website')
 }
 
 export default async function LabelDetailPage({ params }: Props) {

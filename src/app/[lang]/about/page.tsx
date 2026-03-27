@@ -4,6 +4,13 @@
 
 import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
+import { staticPageMetadata } from '@/lib/seo'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  const { lang } = await params
+  return staticPageMetadata(lang, '/about', 'about')
+}
 
 export default async function AboutPage({ params }: { params: { lang: Locale } }) {
   const { lang } = await params
@@ -37,8 +44,8 @@ export default async function AboutPage({ params }: { params: { lang: Locale } }
           </div>
           <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.8, color: 'rgba(232,220,200,0.7)' }}>
             {lang === 'es'
-              ? 'Porque el breakbeat merece un archivo, una memoria y un espacio propio. Porque la historia de este género se está perdiendo en foros cerrados, vinilos olvidados y memorias que se apagan. Optimal Breaks existe para que nada de eso desaparezca.'
-              : 'Because breakbeat deserves an archive, a memory, and a space of its own. Because the history of this genre is being lost in closed forums, forgotten vinyl and fading memories. Optimal Breaks exists so none of that disappears.'}
+              ? 'Porque el breakbeat merece un archivo, una memoria y un espacio propio. La informacion mas estable vive en Historia, Artistas, Escenas, Sellos, Eventos y Mixes; el Blog queda para interpretar, comparar y contar la memoria de escena. Optimal Breaks existe para que nada de eso desaparezca.'
+              : 'Because breakbeat deserves an archive, a memory, and a space of its own. The most stable material lives in History, Artists, Scenes, Labels, Events and Mixes, while the Blog is used to interpret, compare and narrate scene memory. Optimal Breaks exists so none of that disappears.'}
           </p>
         </div>
 

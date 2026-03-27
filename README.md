@@ -14,6 +14,42 @@ The site features an interactive DJ deck with real audio playback and scratch ca
 
 ---
 
+## Content Distribution
+
+The project separates **reference content** from **editorial content**.
+
+### Structural / reference pages
+
+These sections should hold the most stable, navigable and encyclopedia-like information:
+
+- **History** — the core historical narrative: origins, UK, US, Andalusia, Australia, decline and digital era
+- **Artists** — key names, timelines, artist directories and canonical references
+- **Scenes** — territory-based overviews (Bronx/NY, UK, US/Florida, Andalusia, Australia, global digital scene)
+- **Labels** — labels as infrastructure: who shaped the sound and why they matter
+- **Events** — festivals, club nights, iconic past events and current agenda
+- **Mixes** — essential sets, radio shows, YouTube/Mixcloud-era continuity
+
+### Blog / editorial layer
+
+The **Blog** is reserved for pieces that are more interpretive, essayistic, comparative or memory-driven. Examples:
+
+- UK breakbeat vs US breakbeat
+- the Andalusian boom and the `Break Nation` documentary
+- the global decline of breakbeat and its latent survival
+- Camden, white labels, pirate radio and record-shop culture
+- Beatport, YouTube, Mixcloud and the people who kept the scene alive
+- first-person or scene-memory articles tied to travel, shops, radios or local experiences
+
+### Editorial rule of thumb
+
+If a topic answers **"what is this, who belongs here, where did it happen, when did it happen?"**, it should usually live in the structural sections.
+
+If a topic answers **"how should this be interpreted, why did it evolve this way, what did it feel like, how do two scenes compare?"**, it should usually live in the `Blog`.
+
+This split helps the site feel both like an archive and like a living magazine without mixing both layers on the same page.
+
+---
+
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
@@ -166,8 +202,8 @@ Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to 
 | Artists | `/[lang]/artists` | Filterable directory: pioneers, UK, US, Andalusian, current |
 | Labels | `/[lang]/labels` | Record labels that shaped the sound |
 | Events | `/[lang]/events` | Festivals, club nights, iconic past events, upcoming |
-| Scenes | `/[lang]/scenes` | Breakbeat by territory: UK, US, Spain, Australia, Russia, LatAm |
-| Blog | `/[lang]/blog` | Articles, rankings, retrospectives, reviews, interviews |
+| Scenes | `/[lang]/scenes` | Breakbeat by territory: origin points, national scenes and regional ecosystems |
+| Blog | `/[lang]/blog` | Editorial layer: essays, comparisons, retrospectives, memory pieces, reviews |
 | Mixes | `/[lang]/mixes` | Essential mixes, classic sets, radio shows, YouTube sessions |
 | About | `/[lang]/about` | Project manifesto, contact, collaborate, submit |
 

@@ -12,7 +12,7 @@ interface EventFlyerProps {
 
 export default function EventFlyer({ date, name, location, type }: EventFlyerProps) {
   return (
-    <div className="border-[3px] border-[var(--ink)] p-5 sm:p-7 relative transition-all duration-150 bg-[var(--paper)] hover:rotate-[-1deg] hover:shadow-[6px_6px_0_var(--ink)]">
+    <div className="border-[3px] border-[var(--ink)] p-4 sm:p-7 relative transition-all duration-150 bg-[var(--paper)] min-w-0 sm:hover:rotate-[-1deg] sm:hover:shadow-[6px_6px_0_var(--ink)] flex flex-col h-full">
       {/* Tape */}
       <div
         className="absolute -top-[6px] right-[25px] w-[50px] sm:w-[60px] h-[16px] sm:h-[18px]"
@@ -23,7 +23,7 @@ export default function EventFlyer({ date, name, location, type }: EventFlyerPro
         {date}
       </div>
       <div
-        className="mt-2 leading-none"
+        className="mt-2 leading-none break-words pr-16 sm:pr-0"
         style={{
           fontFamily: "'Unbounded', sans-serif",
           fontWeight: 900,
@@ -34,7 +34,7 @@ export default function EventFlyer({ date, name, location, type }: EventFlyerPro
       >
         {name}
       </div>
-      <div className="mt-2" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'rgba(26,26,26,0.45)' }}>
+      <div className="mt-2 flex-grow pb-4" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'rgba(26,26,26,0.45)' }}>
         {location}
       </div>
 

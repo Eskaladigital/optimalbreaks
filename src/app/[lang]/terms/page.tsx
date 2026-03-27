@@ -4,8 +4,12 @@
 
 import type { Locale } from '@/lib/i18n-config'
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = { title: 'Terms of Use' }
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  const { lang } = await params
+  return staticPageMetadata(lang, '/terms', 'terms')
+}
 
 export default async function TermsPage({ params }: { params: { lang: Locale } }) {
   const { lang } = await params

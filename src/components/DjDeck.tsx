@@ -154,7 +154,7 @@ export default function DjDeck({ dict }: DjDeckProps) {
   const track = TRACKS[currentTrack]
 
   return (
-    <div className="relative z-[2] max-w-[880px] mx-auto bg-[var(--ink)] border-4 border-[var(--ink)] p-3 sm:p-5 shadow-[8px_8px_0_rgba(0,0,0,0.15)]">
+    <div className="relative z-[2] w-full min-w-0 max-w-[880px] mx-auto bg-[var(--ink)] border-4 border-[var(--ink)] p-3 sm:p-5 shadow-[8px_8px_0_rgba(0,0,0,0.15)]">
       {/* Tape */}
       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[80px] sm:w-[100px] h-[22px] z-10" style={{ background: 'var(--tape)' }} />
 
@@ -163,12 +163,12 @@ export default function DjDeck({ dict }: DjDeckProps) {
         <div className="hidden sm:block" style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '14px', color: 'var(--yellow)', letterSpacing: '3px' }}>
           {dict.deck_brand}
         </div>
-        <div className="flex items-center gap-2 flex-1 sm:flex-none justify-center">
-          <button onClick={() => switchTrack(-1)} className="text-white/30 hover:text-[var(--yellow)] transition-colors text-lg px-1">◄</button>
-          <div className="text-center truncate max-w-[180px] sm:max-w-[200px]" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '9px', color: 'var(--yellow)', letterSpacing: '1px' }}>
+        <div className="flex items-center gap-1 sm:gap-2 flex-1 sm:flex-none justify-center min-w-0">
+          <button onClick={() => switchTrack(-1)} className="text-white/30 hover:text-[var(--yellow)] transition-colors text-lg px-2 py-1">◄</button>
+          <div className="text-center truncate flex-1 max-w-[120px] sm:max-w-[200px]" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '9px', color: 'var(--yellow)', letterSpacing: '1px' }}>
             {track.title}
           </div>
-          <button onClick={() => switchTrack(1)} className="text-white/30 hover:text-[var(--yellow)] transition-colors text-lg px-1">►</button>
+          <button onClick={() => switchTrack(1)} className="text-white/30 hover:text-[var(--yellow)] transition-colors text-lg px-2 py-1">►</button>
         </div>
         <div className="hidden lg:block" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '9px', letterSpacing: '2px', color: 'rgba(255,255,255,0.3)' }}>
           {dict.deck_model}

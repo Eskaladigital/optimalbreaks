@@ -164,11 +164,11 @@
   },
   "labels": {
     "title": "Sellos",
-    "subtitle": "Los sellos discográficos que definieron el sonido"
+    "subtitle": "Sellos, catalogos e infraestructura: quien dio forma y continuidad al sonido"
   },
   "events": {
     "title": "Eventos",
-    "subtitle": "Pasado, presente y futuro de los eventos de breakbeat",
+    "subtitle": "Hitos, festivales, noches y puntos de inflexion en la historia del breakbeat",
     "filters": {
       "all": "Todos",
       "festival": "Festivales",
@@ -179,20 +179,20 @@
   },
   "scenes": {
     "title": "Escenas",
-    "subtitle": "Cómo el breakbeat cambió según el territorio"
+    "subtitle": "Mapa territorial del breakbeat: origenes, paises, regiones y ecosistemas locales"
   },
   "blog": {
     "title": "Blog",
-    "subtitle": "Artículos, opinión, rankings, retrospectivas"
+    "subtitle": "Capa editorial del proyecto: articulos, comparativas, memoria de escena y retrospectivas"
   },
   "mixes": {
     "title": "Mixes y Sets",
-    "subtitle": "Mixes esenciales, sets clásicos, radio shows"
+    "subtitle": "Sets esenciales, radio, podcasts y continuidad digital de la escena"
   },
   "about": {
     "title": "Sobre",
     "subtitle": "Qué es Optimal Breaks",
-    "description": "Optimal Breaks es un archivo, revista, guía, agenda y memoria de escena. Un proyecto dedicado a preservar y celebrar la cultura del breakbeat.",
+    "description": "Optimal Breaks es archivo y revista a la vez: organiza la informacion estable en secciones de referencia y reserva el blog para piezas editoriales, comparativas y memoria de escena.",
     "contact": "Contacto",
     "collaborate": "Colabora",
     "submit_event": "Enviar un evento",
@@ -206,6 +206,58 @@
     "no_results": "No se encontraron resultados",
     "search": "Buscar",
     "since": "Desde 2026"
+  },
+  "seo": {
+    "site_name": "Optimal Breaks",
+    "default_keywords": "breakbeat, breaks, nu skool breaks, big beat, UK bass, jungle, drum and bass, rave, electrónica de baile, historia del breakbeat, Andalucía, breakbeat español",
+    "home": {
+      "title": "La biblia del breakbeat — archivo, historia y cultura",
+      "description": "Optimal Breaks: historia del breakbeat del Bronx al UK bass, artistas, escenas, eventos y memoria de pista. Archivo y guía en español e inglés."
+    },
+    "history": {
+      "title": "Historia del breakbeat — orígenes, UK, Andalucía y era digital",
+      "description": "Cronología completa: funk y Kool Herc, rave y hardcore UK, breaks en EE. UU., boom andaluz, Australia, declive y resistencia, Beatport y cultura DJ."
+    },
+    "artists": {
+      "title": "Artistas y referentes del breakbeat",
+      "description": "Fichas, categorías y cronología de figuras clave: desde el hip hop y el Amen break hasta nu skool, UK bass y escena actual."
+    },
+    "labels": {
+      "title": "Sellos discográficos del break y la electrónica rota",
+      "description": "Sellos que definieron big beat, nu skool breaks, jungle y breaks: referencias para explorar discografías y sonidos."
+    },
+    "events": {
+      "title": "Eventos, festivales y club nights de breakbeat",
+      "description": "Agenda y archivo de fiestas, festivales y sesiones: pasado icónico, presente y futuro de la cultura break en pista."
+    },
+    "scenes": {
+      "title": "Escenas territoriales del breakbeat",
+      "description": "Cómo sonó el break en UK, EE. UU., Andalucía y el mundo: escenas locales, identidades y cruces entre géneros."
+    },
+    "blog": {
+      "title": "Blog — artículos, opiniones y retrospectivas",
+      "description": "Textos sobre breakbeat, rankings, entrevistas y memoria de escena. Contenido editorial Optimal Breaks."
+    },
+    "mixes": {
+      "title": "Mixes, sets y radio shows esenciales",
+      "description": "Selección de mixes clásicos, sesiones en vídeo y programas imprescindibles para seguir el hilo del break y los breaks."
+    },
+    "about": {
+      "title": "Qué es Optimal Breaks",
+      "description": "Proyecto archivo-revista-guía dedicado a preservar y celebrar la cultura breakbeat: quiénes somos y cómo colaborar."
+    },
+    "privacy": {
+      "title": "Política de privacidad",
+      "description": "Información sobre tratamiento de datos personales en optimalbreaks.com conforme a normativa aplicable."
+    },
+    "terms": {
+      "title": "Términos y condiciones de uso",
+      "description": "Condiciones legales de uso del sitio web Optimal Breaks y de sus contenidos."
+    },
+    "cookies": {
+      "title": "Política de cookies",
+      "description": "Uso de cookies y tecnologías similares en optimalbreaks.com y cómo gestionar tus preferencias."
+    }
   },
   "footer": {
     "copy": "Optimal Breaks — archivo de cultura breakbeat",

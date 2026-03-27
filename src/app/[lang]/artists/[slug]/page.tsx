@@ -3,7 +3,8 @@
 // Loads from Supabase, full SEO metadata
 // ============================================
 
-import { createServerSupabase } from '@/lib/supabase'
+import { createServerSupabase } from '@/lib/supabase-server'
+import { detailPageMetadata, siteNameForLang } from '@/lib/seo'
 import type { Locale } from '@/lib/i18n-config'
 import type { Artist } from '@/types/database'
 import type { Metadata } from 'next'
@@ -19,19 +20,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data: raw } = await supabase.from('artists').select('name, bio_en, bio_es').eq('slug', slug).single()
   const meta: ArtistSeoRow | null = raw as ArtistSeoRow | null
 
-  if (!meta?.name) return { title: 'Artist Not Found' }
-
-  const description = (lang === 'es' ? meta.bio_es : meta.bio_en)?.slice(0, 160)
-
-  return {
-    title: meta.name,
-    description,
-    openGraph: {
-      title: `${meta.name} | Optimal Breaks`,
-      description,
-      type: 'profile',
-    },
+  if (!meta?.name) {
+    return {
+      title: lang === 'es' ? 'Artista no encontrado' : 'Artist not found',
+      robots: { index: false, follow: true },
+    }
   }
+
+  const siteName = await siteNameForLang(lang)
+  const description = (lang === 'es' ? meta.bio_es : meta.bio_en)?.slice(0, 160)
+  return detailPageMetadata(lang, `/artists/${slug}`, siteName, meta.name, description, 'profile')
 }
 
 export default async function ArtistDetailPage({ params }: Props) {

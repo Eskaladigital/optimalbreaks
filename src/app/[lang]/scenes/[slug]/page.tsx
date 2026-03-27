@@ -2,7 +2,8 @@
 // OPTIMAL BREAKS — Scene Detail Page
 // ============================================
 
-import { createServerSupabase } from '@/lib/supabase'
+import { createServerSupabase } from '@/lib/supabase-server'
+import { detailPageMetadata, siteNameForLang } from '@/lib/seo'
 import type { Locale } from '@/lib/i18n-config'
 import type { Scene } from '@/types/database'
 import type { Metadata } from 'next'
@@ -17,11 +18,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServerSupabase()
   const { data: raw } = await supabase.from('scenes').select('name_en, name_es, description_en, description_es').eq('slug', slug).single()
   const data = raw as SceneSeoRow | null
-  if (!data) return { title: 'Scene Not Found' }
-  return {
-    title: lang === 'es' ? data.name_es : data.name_en,
-    description: (lang === 'es' ? data.description_es : data.description_en)?.slice(0, 160),
+  if (!data) {
+    return {
+      title: lang === 'es' ? 'Escena no encontrada' : 'Scene not found',
+      robots: { index: false, follow: true },
+    }
   }
+  const title = lang === 'es' ? data.name_es : data.name_en
+  const siteName = await siteNameForLang(lang)
+  const description = (lang === 'es' ? data.description_es : data.description_en)?.slice(0, 160)
+  return detailPageMetadata(lang, `/scenes/${slug}`, siteName, title, description, 'website')
 }
 
 export default async function SceneDetailPage({ params }: Props) {

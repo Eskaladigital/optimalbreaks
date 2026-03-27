@@ -2,6 +2,15 @@
 // OPTIMAL BREAKS — Database Types
 // ============================================
 
+/** Matches @supabase Supabase `GenericRelationship` so `Relationships` is not inferred as `[]`. */
+type DbRelationship = {
+  foreignKeyName: string
+  columns: string[]
+  isOneToOne?: boolean
+  referencedRelation: string
+  referencedColumns: string[]
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -9,42 +18,151 @@ export interface Database {
         Row: Artist
         Insert: Omit<Artist, 'id' | 'created_at'>
         Update: Partial<Omit<Artist, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
       labels: {
         Row: Label
         Insert: Omit<Label, 'id' | 'created_at'>
         Update: Partial<Omit<Label, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
       events: {
         Row: BreakEvent
         Insert: Omit<BreakEvent, 'id' | 'created_at'>
         Update: Partial<Omit<BreakEvent, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
       blog_posts: {
         Row: BlogPost
         Insert: Omit<BlogPost, 'id' | 'created_at'>
         Update: Partial<Omit<BlogPost, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
       scenes: {
         Row: Scene
         Insert: Omit<Scene, 'id' | 'created_at'>
         Update: Partial<Omit<Scene, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
       mixes: {
         Row: Mix
         Insert: Omit<Mix, 'id' | 'created_at'>
         Update: Partial<Omit<Mix, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
       history_entries: {
         Row: HistoryEntry
         Insert: Omit<HistoryEntry, 'id' | 'created_at'>
         Update: Partial<Omit<HistoryEntry, 'id' | 'created_at'>>
+        Relationships: DbRelationship[]
       }
+      favorite_artists: {
+        Row: FavoriteArtistLink
+        Insert: FavoriteArtistLink
+        Update: Partial<FavoriteArtistLink>
+        Relationships: DbRelationship[]
+      }
+      favorite_labels: {
+        Row: FavoriteLabelLink
+        Insert: FavoriteLabelLink
+        Update: Partial<FavoriteLabelLink>
+        Relationships: DbRelationship[]
+      }
+      saved_mixes: {
+        Row: SavedMixLink
+        Insert: SavedMixLink
+        Update: Partial<SavedMixLink>
+        Relationships: DbRelationship[]
+      }
+      event_attendance: {
+        Row: EventAttendanceRow
+        Insert: EventAttendanceRow
+        Update: Partial<EventAttendanceRow>
+        Relationships: DbRelationship[]
+      }
+      artist_sightings: {
+        Row: ArtistSightingRow
+        Insert: Omit<ArtistSightingRow, 'id'>
+        Update: Partial<Omit<ArtistSightingRow, 'id'>>
+        Relationships: DbRelationship[]
+      }
+      event_ratings: {
+        Row: EventRatingRow
+        Insert: EventRatingRow
+        Update: Partial<EventRatingRow>
+        Relationships: DbRelationship[]
+      }
+      profiles: {
+        Row: ProfileRow
+        Insert: ProfileRow
+        Update: Partial<Omit<ProfileRow, 'id'>>
+        Relationships: DbRelationship[]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
     }
   }
 }
 
-export interface Artist {
+export interface FavoriteArtistLink extends Record<string, unknown> {
+  user_id: string
+  artist_id: string
+}
+
+export interface FavoriteLabelLink extends Record<string, unknown> {
+  user_id: string
+  label_id: string
+}
+
+export interface SavedMixLink extends Record<string, unknown> {
+  user_id: string
+  mix_id: string
+}
+
+export interface EventAttendanceRow extends Record<string, unknown> {
+  user_id: string
+  event_id: string
+  status: 'wishlist' | 'attending' | 'attended'
+}
+
+export interface ArtistSightingRow extends Record<string, unknown> {
+  id: string
+  user_id: string
+  artist_id: string
+  seen_at: string
+  venue: string
+  city: string
+  country: string
+  event_name: string
+  notes: string
+  rating: number | null
+}
+
+export interface EventRatingRow extends Record<string, unknown> {
+  user_id: string
+  event_id: string
+  rating: number
+  review: string | null
+}
+
+export interface ProfileRow extends Record<string, unknown> {
+  id: string
+  username: string | null
+  display_name: string | null
+  avatar_url: string | null
+  bio: string
+  country: string
+  favorite_genre: string
+  total_favorites: number
+  total_events_attended: number
+  total_events_wishlist: number
+}
+
+export interface Artist extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
@@ -66,7 +184,7 @@ export interface Artist {
   sort_order: number
 }
 
-export interface Label {
+export interface Label extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
@@ -83,7 +201,7 @@ export interface Label {
   is_featured: boolean
 }
 
-export interface BreakEvent {
+export interface BreakEvent extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
@@ -103,7 +221,7 @@ export interface BreakEvent {
   is_featured: boolean
 }
 
-export interface BlogPost {
+export interface BlogPost extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
@@ -122,7 +240,7 @@ export interface BlogPost {
   is_featured: boolean
 }
 
-export interface Scene {
+export interface Scene extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
@@ -140,7 +258,7 @@ export interface Scene {
   is_featured: boolean
 }
 
-export interface Mix {
+export interface Mix extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
@@ -158,7 +276,7 @@ export interface Mix {
   is_featured: boolean
 }
 
-export interface HistoryEntry {
+export interface HistoryEntry extends Record<string, unknown> {
   id: string
   created_at: string
   slug: string
