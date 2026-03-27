@@ -1,5 +1,6 @@
 // ============================================
 // OPTIMAL BREAKS — Timeline Section
+// Responsive: mobile stacked, desktop 3-col grid
 // ============================================
 
 interface TimelineItem {
@@ -18,7 +19,7 @@ interface TimelineProps {
 export default function Timeline({ tag, title1, title2, items }: TimelineProps) {
   return (
     <div
-      className="bg-[var(--ink)] text-[var(--paper)] -mx-6 px-6 py-20 border-t-8 border-b-8 border-[var(--red)]"
+      className="bg-[var(--ink)] text-[var(--paper)] -mx-6 px-4 sm:px-6 py-14 sm:py-20 border-t-8 border-b-8 border-[var(--red)]"
       style={{ position: 'relative', zIndex: 1 }}
     >
       <div className="sec-tag" style={{ borderColor: 'var(--yellow)', color: 'var(--yellow)' }}>
@@ -44,13 +45,13 @@ export default function Timeline({ tag, title1, title2, items }: TimelineProps) 
         </span>
       </h2>
 
-      <div className="mt-10">
+      <div className="mt-8 sm:mt-10">
         {items.map((item, i) => (
           <div
             key={i}
-            className="grid gap-5 py-6 transition-all duration-200 hover:pl-3"
+            className="grid gap-3 sm:gap-5 py-5 sm:py-6 transition-all duration-200 hover:pl-3"
             style={{
-              gridTemplateColumns: '100px 3px 1fr',
+              gridTemplateColumns: 'clamp(55px, 12vw, 100px) 3px 1fr',
               borderBottom: i < items.length - 1 ? '2px dashed rgba(232,220,200,0.08)' : 'none',
             }}
           >
@@ -58,7 +59,7 @@ export default function Timeline({ tag, title1, title2, items }: TimelineProps) 
               className="text-right leading-none"
               style={{
                 fontFamily: "'Permanent Marker', cursive",
-                fontSize: '40px',
+                fontSize: 'clamp(24px, 5vw, 40px)',
                 color: 'var(--yellow)',
               }}
             >
@@ -70,7 +71,7 @@ export default function Timeline({ tag, title1, title2, items }: TimelineProps) 
                 style={{
                   fontFamily: "'Unbounded', sans-serif",
                   fontWeight: 700,
-                  fontSize: '20px',
+                  fontSize: 'clamp(14px, 3vw, 20px)',
                   textTransform: 'uppercase',
                 }}
               >
@@ -79,7 +80,7 @@ export default function Timeline({ tag, title1, title2, items }: TimelineProps) 
               <p
                 className="mt-1"
                 style={{
-                  fontSize: '15px',
+                  fontSize: 'clamp(13px, 2vw, 15px)',
                   lineHeight: 1.7,
                   color: 'rgba(232,220,200,0.45)',
                 }}
