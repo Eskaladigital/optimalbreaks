@@ -82,7 +82,7 @@ export default function Footer({ dict, lang = 'en' }: FooterProps) {
 
   return (
     <footer className="relative z-[1] border-t-4 border-[var(--ink)] bg-[var(--paper)]">
-      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-[1400px] px-5 py-10 sm:px-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-10">
           
           {/* Col 1: Marca y copy (Ocupa 2 cols en móvil y tablet, 2 cols en desktop) */}
