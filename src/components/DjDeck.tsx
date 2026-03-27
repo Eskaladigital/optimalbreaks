@@ -27,6 +27,7 @@ export default function DjDeck({ dict }: DjDeckProps) {
   const audioCtxRef = useRef<AudioContext | null>(null)
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null)
   const gainRef = useRef<GainNode | null>(null)
+  const scratchAudioRef = useRef<HTMLAudioElement | null>(null)
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [leftActive, setLeftActive] = useState(true)
@@ -40,12 +41,19 @@ export default function DjDeck({ dict }: DjDeckProps) {
   const [scratchingRight, setScratchingRight] = useState(false)
   const scratchStartY = useRef(0)
   const scratchStartTime = useRef(0)
+  const brakeAnimRef = useRef<number>(0)
   const [leftRotation, setLeftRotation] = useState(0)
   const [rightRotation, setRightRotation] = useState(0)
   const animFrameRef = useRef<number>(0)
 
   // Init audio
   const initAudio = useCallback(() => {
+    if (!scratchAudioRef.current) {
+      const scratch = new Audio('/music/scratch.mp3')
+      scratch.volume = 0.6
+      scratchAudioRef.current = scratch
+    }
+
     if (!audioRef.current) {
       const audio = new Audio(TRACKS[currentTrack].file)
       audio.crossOrigin = 'anonymous'
@@ -99,11 +107,41 @@ export default function DjDeck({ dict }: DjDeckProps) {
     initAudio()
     if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
     if (isPlaying) {
-      audioRef.current?.pause()
-      setIsPlaying(false)
+      if (brakeAnimRef.current) cancelAnimationFrame(brakeAnimRef.current)
+      const audio = audioRef.current
+      if (audio) {
+        let rate = audio.playbackRate
+        const step = () => {
+          rate = Math.max(0, rate - 0.06)
+          audio.playbackRate = rate
+          if (rate > 0) {
+            brakeAnimRef.current = requestAnimationFrame(step)
+          } else {
+            audio.pause()
+            setIsPlaying(false)
+          }
+        }
+        step()
+      } else {
+        setIsPlaying(false)
+      }
     } else {
-      audioRef.current?.play()
       setIsPlaying(true)
+      const audio = audioRef.current
+      if (audio) {
+        audio.playbackRate = 0
+        audio.play()
+        if (brakeAnimRef.current) cancelAnimationFrame(brakeAnimRef.current)
+        let rate = 0
+        const step = () => {
+          rate = Math.min(1, rate + 0.06)
+          audio.playbackRate = rate
+          if (rate < 1) {
+            brakeAnimRef.current = requestAnimationFrame(step)
+          }
+        }
+        step()
+      }
     }
   }
 
@@ -118,19 +156,45 @@ export default function DjDeck({ dict }: DjDeckProps) {
     scratchStartTime.current = audioRef.current.currentTime
     if (side === 'left') setScratchingLeft(true)
     else setScratchingRight(true)
-    audioRef.current.playbackRate = 0
+    
+    // Vinyl brake effect (slow down to 0)
+    if (brakeAnimRef.current) cancelAnimationFrame(brakeAnimRef.current)
+    const audio = audioRef.current
+    let rate = audio.playbackRate
+    const step = () => {
+      rate = Math.max(0, rate - 0.1)
+      if (audio) audio.playbackRate = rate
+      if (rate > 0) {
+        brakeAnimRef.current = requestAnimationFrame(step)
+      }
+    }
+    step()
   }
 
   const handleScratchMove = (side: 'left' | 'right', e: React.MouseEvent | React.TouchEvent) => {
     if ((side === 'left' && !scratchingLeft) || (side === 'right' && !scratchingRight)) return
     if (!audioRef.current) return
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    const delta = (scratchStartY.current - clientY) * 0.05
+    
+    // Simulate scratching by scrubbing time (finer control)
+    const delta = (scratchStartY.current - clientY) * 0.02
+
+    // Play scratch sample if moving fast enough
+    if (Math.abs(delta) > 0.02 && scratchAudioRef.current) {
+      if (scratchAudioRef.current.paused || scratchAudioRef.current.currentTime > 0.08) {
+        scratchAudioRef.current.currentTime = 0
+        scratchAudioRef.current.playbackRate = 0.8 + Math.random() * 0.6 // Randomize pitch slightly for realism
+        scratchAudioRef.current.play().catch(() => {})
+      }
+    }
+
     const newTime = Math.max(0, Math.min(scratchStartTime.current + delta, duration))
     audioRef.current.currentTime = newTime
+    
     const rotDelta = (scratchStartY.current - clientY) * 2
-    if (side === 'left') setLeftRotation((r) => r + rotDelta * 0.3)
-    else setRightRotation((r) => r + rotDelta * 0.3)
+    if (side === 'left') setLeftRotation((r) => r + rotDelta * 0.5)
+    else setRightRotation((r) => r + rotDelta * 0.5)
+    
     scratchStartY.current = clientY
     scratchStartTime.current = newTime
   }
@@ -138,7 +202,21 @@ export default function DjDeck({ dict }: DjDeckProps) {
   const handleScratchEnd = () => {
     setScratchingLeft(false)
     setScratchingRight(false)
-    if (audioRef.current && isPlaying) audioRef.current.playbackRate = 1
+    
+    if (audioRef.current && isPlaying) {
+      // Vinyl startup effect (speed up to 1)
+      if (brakeAnimRef.current) cancelAnimationFrame(brakeAnimRef.current)
+      const audio = audioRef.current
+      let rate = audio.playbackRate
+      const step = () => {
+        rate = Math.min(1, rate + 0.1)
+        if (audio) audio.playbackRate = rate
+        if (rate < 1) {
+          brakeAnimRef.current = requestAnimationFrame(step)
+        }
+      }
+      step()
+    }
   }
 
   const switchTrack = (direction: 1 | -1) => {

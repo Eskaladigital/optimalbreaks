@@ -1,5 +1,6 @@
 // ============================================
 // OPTIMAL BREAKS — Scene Detail Page
+// + ShareButtons
 // ============================================
 
 import { createServerSupabase } from '@/lib/supabase-server'
@@ -8,9 +9,9 @@ import type { Locale } from '@/lib/i18n-config'
 import type { Scene } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ShareButtons from '@/components/ShareButtons'
 
 type Props = { params: { lang: Locale; slug: string } }
-
 type SceneSeoRow = Pick<Scene, 'name_en' | 'name_es' | 'description_en' | 'description_es'>
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -18,12 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServerSupabase()
   const { data: raw } = await supabase.from('scenes').select('name_en, name_es, description_en, description_es').eq('slug', slug).single()
   const data = raw as SceneSeoRow | null
-  if (!data) {
-    return {
-      title: lang === 'es' ? 'Escena no encontrada' : 'Scene not found',
-      robots: { index: false, follow: true },
-    }
-  }
+  if (!data) return { title: lang === 'es' ? 'Escena no encontrada' : 'Scene not found', robots: { index: false, follow: true } }
   const title = lang === 'es' ? data.name_es : data.name_en
   const siteName = await siteNameForLang(lang)
   const description = (lang === 'es' ? data.description_es : data.description_en)?.slice(0, 160)
@@ -34,7 +30,7 @@ export default async function SceneDetailPage({ params }: Props) {
   const { lang, slug } = await params
   const supabase = createServerSupabase()
   const { data: rawScene } = await supabase.from('scenes').select('*').eq('slug', slug).single()
-  const scene: Scene | null = rawScene as Scene | null
+  const scene = rawScene as Scene | null
 
   if (!scene) {
     return (
@@ -50,12 +46,20 @@ export default async function SceneDetailPage({ params }: Props) {
     )
   }
 
+  const sceneName = lang === 'es' ? scene.name_es : scene.name_en
+
   return (
     <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20">
       <Link href={`/${lang}/scenes`} className="cutout outline no-underline mb-6 inline-block">← {lang === 'es' ? 'Volver a Escenas' : 'Back to Scenes'}</Link>
       <div className="sec-tag">SCENE</div>
-      <h1 className="sec-title"><span className="hl">{lang === 'es' ? scene.name_es : scene.name_en}</span></h1>
-      <div className="flex flex-wrap gap-2 mt-4 mb-8">
+      <h1 className="sec-title"><span className="hl">{sceneName}</span></h1>
+
+      {/* Share row */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <ShareButtons url={`/${lang}/scenes/${slug}`} title={`${sceneName} | Optimal Breaks`} lang={lang} />
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-8">
         <span className="cutout fill">{scene.country}</span>
         {scene.region && <span className="cutout outline">{scene.region}</span>}
         <span className="cutout red">{scene.era}</span>
@@ -64,13 +68,13 @@ export default async function SceneDetailPage({ params }: Props) {
         {lang === 'es' ? scene.description_es : scene.description_en}
       </p>
       {scene.key_artists?.length > 0 && (
-        <div className="p-6 bg-[var(--ink)] text-[var(--paper)] border-4 border-[var(--ink)] mb-4">
+        <div className="p-4 sm:p-6 bg-[var(--ink)] text-[var(--paper)] border-4 border-[var(--ink)] mb-4">
           <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '18px', color: 'var(--yellow)', marginBottom: '12px' }}>{lang === 'es' ? 'ARTISTAS CLAVE' : 'KEY ARTISTS'}</div>
           <div className="flex flex-wrap gap-2">{scene.key_artists.map((a: string, i: number) => <span key={i} className="cutout red">{a}</span>)}</div>
         </div>
       )}
       {scene.key_labels?.length > 0 && (
-        <div className="p-6 border-4 border-[var(--ink)]">
+        <div className="p-4 sm:p-6 border-4 border-[var(--ink)]">
           <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '18px', color: 'var(--red)', marginBottom: '12px' }}>{lang === 'es' ? 'SELLOS CLAVE' : 'KEY LABELS'}</div>
           <div className="flex flex-wrap gap-2">{scene.key_labels.map((l: string, i: number) => <span key={i} className="cutout fill">{l}</span>)}</div>
         </div>

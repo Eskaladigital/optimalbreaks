@@ -3,6 +3,8 @@
 // Responsive: mobile stacked, desktop 3-col grid
 // ============================================
 
+import Link from 'next/link'
+
 interface TimelineItem {
   year: string
   title: string
@@ -14,9 +16,11 @@ interface TimelineProps {
   title1: string
   title2: string
   items: TimelineItem[]
+  /** Enlace interno bajo la línea temporal (SEO / retención). */
+  footerLink?: { href: string; label: string }
 }
 
-export default function Timeline({ tag, title1, title2, items }: TimelineProps) {
+export default function Timeline({ tag, title1, title2, items, footerLink }: TimelineProps) {
   return (
     <div
       className="bg-[var(--ink)] text-[var(--paper)] -mx-3 sm:-mx-6 px-3 sm:px-6 py-12 sm:py-20 border-t-8 border-b-8 border-[var(--red)]"
@@ -91,6 +95,24 @@ export default function Timeline({ tag, title1, title2, items }: TimelineProps) 
           </div>
         ))}
       </div>
+
+      {footerLink ? (
+        <div className="mt-10 sm:mt-12 pt-8 border-t border-dashed border-[rgba(232,220,200,0.12)] text-center">
+          <Link
+            href={footerLink.href}
+            className="inline-block no-underline text-[var(--yellow)] hover:text-white transition-colors"
+            style={{
+              fontFamily: "'Courier Prime', monospace",
+              fontWeight: 700,
+              fontSize: 'clamp(12px, 2vw, 14px)',
+              letterSpacing: '2px',
+              textTransform: 'uppercase',
+            }}
+          >
+            {footerLink.label} →
+          </Link>
+        </div>
+      ) : null}
     </div>
   )
 }

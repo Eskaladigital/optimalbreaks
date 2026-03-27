@@ -28,7 +28,8 @@
       "title_1": "¿QUÉ COÑO ES",
       "title_2": "EL BREAKBEAT?",
       "p1": "Música electrónica con <strong>ritmos sincopados y rotos</strong>. Nada de four-on-the-floor predecible. Aquí los loops de batería se cortan, se tuercen y se reorganizan hasta crear un <u>groove sincopado</u> que te engancha de forma visceral.",
-      "p2": "Nació en los <strong>70s en el Bronx</strong>. DJs como Kool Herc aislaban los \"breaks\" — esas secciones donde solo sonaba la batería — de discos de funk y soul. Esos segundos de percusión pura se convirtieron en la semilla del hip-hop, del jungle, del drum and bass y de todo un universo de subgéneros que no para de mutar."
+      "p2": "Nació en los <strong>70s en el Bronx</strong>. DJs como Kool Herc aislaban los \"breaks\" — esas secciones donde solo sonaba la batería — de discos de funk y soul. Esos segundos de percusión pura se convirtieron en la semilla del hip-hop, del jungle, del drum and bass y de todo un universo de subgéneros que no para de mutar.",
+      "p3": "Optimal Breaks es un archivo vivo en español e inglés: cronología, artistas, escenas territoriales, sellos, eventos y blog editorial. Sigue los enlaces de abajo para no quedarte en la superficie — el breakbeat se entiende mejor en contexto."
     },
     "section_history": {
       "tag": "02 — LÍNEA TEMPORAL",
@@ -46,17 +47,38 @@
     "section_artists": {
       "tag": "03 — REFERENTES",
       "title_1": "ARTISTAS",
-      "title_2": "CLAVE"
+      "title_2": "CLAVE",
+      "see_all": "VER MAPA COMPLETO"
     },
     "section_events": {
       "tag": "04 — CALENDARIO",
       "title_1": "PRÓXIMOS",
-      "title_2": "EVENTOS"
+      "title_2": "EVENTOS",
+      "see_all": "TODA LA AGENDA"
     },
+    "section_explore": {
+      "tag": "05 — EXPLORA",
+      "title_1": "SIGUE EL",
+      "title_2": "HILO",
+      "intro": "Cada sección profundiza en una parte del mapa — desde el Bronx y la rave UK hasta Andalucía, Australia y la era Beatport. Navega, guarda y vuelve cuando quieras; el archivo crece.",
+      "items": [
+        { "href": "/history", "label": "Historia", "hint": "Orígenes, UK, EE. UU., Andalucía, digital" },
+        { "href": "/artists", "label": "Artistas", "hint": "Fichas, categorías, cronología" },
+        { "href": "/scenes", "label": "Escenas", "hint": "Territorios y contexto local" },
+        { "href": "/labels", "label": "Sellos", "hint": "Infraestructura sonora" },
+        { "href": "/events", "label": "Eventos", "hint": "Agenda y archivo" },
+        { "href": "/blog", "label": "Blog", "hint": "Ensayos y memoria de escena" },
+        { "href": "/mixes", "label": "Mixes", "hint": "Sets y continuidad sonora" },
+        { "href": "/about", "label": "Sobre", "hint": "Manifiesto y contacto" }
+      ]
+    },
+    "timeline_footer": "Historia ampliada: capítulos, fuentes y matices",
     "cta": {
       "title_1": "ROMPE",
       "title_2": "EL COMPÁS",
-      "button": "ENTRA YA"
+      "sub": "Documentación viva del breakbeat: entra en la cronología o en el blog para quedarte.",
+      "button": "HISTORIA COMPLETA",
+      "secondary": "Blog editorial"
     },
     "footer": {
       "copy": "HECHO CON BREAKS Y RUIDO"
@@ -212,7 +234,7 @@
     "default_keywords": "breakbeat, breaks, nu skool breaks, big beat, UK bass, jungle, drum and bass, rave, electrónica de baile, historia del breakbeat, Andalucía, breakbeat español",
     "home": {
       "title": "La biblia del breakbeat — archivo, historia y cultura",
-      "description": "Optimal Breaks: historia del breakbeat del Bronx al UK bass, artistas, escenas, eventos y memoria de pista. Archivo y guía en español e inglés."
+      "description": "Optimal Breaks: historia del breakbeat del Bronx al UK bass, nu skool breaks, jungle y big beat. Cronología, artistas, escenas (UK, Andalucía, EE. UU.), sellos, eventos, mixes y blog. Guía bilingüe para explorar y volver."
     },
     "history": {
       "title": "Historia del breakbeat — orígenes, UK, Andalucía y era digital",

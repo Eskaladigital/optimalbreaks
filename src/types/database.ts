@@ -57,45 +57,45 @@ export interface Database {
         Relationships: DbRelationship[]
       }
       favorite_artists: {
-        Row: FavoriteArtistLink
-        Insert: FavoriteArtistLink
-        Update: Partial<FavoriteArtistLink>
+        Row: FavoriteArtistRow
+        Insert: Pick<FavoriteArtistRow, 'user_id' | 'artist_id'>
+        Update: Partial<Pick<FavoriteArtistRow, 'user_id' | 'artist_id'>>
         Relationships: DbRelationship[]
       }
       favorite_labels: {
-        Row: FavoriteLabelLink
-        Insert: FavoriteLabelLink
-        Update: Partial<FavoriteLabelLink>
+        Row: FavoriteLabelRow
+        Insert: Pick<FavoriteLabelRow, 'user_id' | 'label_id'>
+        Update: Partial<Pick<FavoriteLabelRow, 'user_id' | 'label_id'>>
         Relationships: DbRelationship[]
       }
       saved_mixes: {
-        Row: SavedMixLink
-        Insert: SavedMixLink
-        Update: Partial<SavedMixLink>
+        Row: SavedMixRow
+        Insert: Pick<SavedMixRow, 'user_id' | 'mix_id'>
+        Update: Partial<Pick<SavedMixRow, 'user_id' | 'mix_id'>>
         Relationships: DbRelationship[]
       }
       event_attendance: {
         Row: EventAttendanceRow
-        Insert: EventAttendanceRow
-        Update: Partial<EventAttendanceRow>
+        Insert: Pick<EventAttendanceRow, 'user_id' | 'event_id' | 'status'>
+        Update: Partial<Pick<EventAttendanceRow, 'status'>>
         Relationships: DbRelationship[]
       }
       artist_sightings: {
         Row: ArtistSightingRow
-        Insert: Omit<ArtistSightingRow, 'id'>
-        Update: Partial<Omit<ArtistSightingRow, 'id'>>
+        Insert: Omit<ArtistSightingRow, 'id' | 'created_at'>
+        Update: Partial<Omit<ArtistSightingRow, 'id' | 'created_at'>>
         Relationships: DbRelationship[]
       }
       event_ratings: {
         Row: EventRatingRow
-        Insert: EventRatingRow
-        Update: Partial<EventRatingRow>
+        Insert: Pick<EventRatingRow, 'user_id' | 'event_id' | 'rating' | 'review'>
+        Update: Partial<Pick<EventRatingRow, 'rating' | 'review'>>
         Relationships: DbRelationship[]
       }
       profiles: {
         Row: ProfileRow
-        Insert: ProfileRow
-        Update: Partial<Omit<ProfileRow, 'id'>>
+        Insert: Omit<ProfileRow, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<ProfileRow, 'id' | 'created_at' | 'updated_at'>>
         Relationships: DbRelationship[]
       }
     }
@@ -108,24 +108,32 @@ export interface Database {
   }
 }
 
-export interface FavoriteArtistLink extends Record<string, unknown> {
+export interface FavoriteArtistRow extends Record<string, unknown> {
+  id: string
   user_id: string
   artist_id: string
+  created_at: string
 }
 
-export interface FavoriteLabelLink extends Record<string, unknown> {
+export interface FavoriteLabelRow extends Record<string, unknown> {
+  id: string
   user_id: string
   label_id: string
+  created_at: string
 }
 
-export interface SavedMixLink extends Record<string, unknown> {
+export interface SavedMixRow extends Record<string, unknown> {
+  id: string
   user_id: string
   mix_id: string
+  created_at: string
 }
 
 export interface EventAttendanceRow extends Record<string, unknown> {
+  id: string
   user_id: string
   event_id: string
+  created_at: string
   status: 'wishlist' | 'attending' | 'attended'
 }
 
@@ -133,6 +141,7 @@ export interface ArtistSightingRow extends Record<string, unknown> {
   id: string
   user_id: string
   artist_id: string
+  created_at: string
   seen_at: string
   venue: string
   city: string
@@ -143,14 +152,18 @@ export interface ArtistSightingRow extends Record<string, unknown> {
 }
 
 export interface EventRatingRow extends Record<string, unknown> {
+  id: string
   user_id: string
   event_id: string
+  created_at: string
   rating: number
   review: string | null
 }
 
 export interface ProfileRow extends Record<string, unknown> {
   id: string
+  created_at: string
+  updated_at: string
   username: string | null
   display_name: string | null
   avatar_url: string | null

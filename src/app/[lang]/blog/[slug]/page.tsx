@@ -1,6 +1,6 @@
 // ============================================
 // OPTIMAL BREAKS — Blog Post Detail (Secure)
-// Sanitized HTML, validated slug
+// + ShareButtons
 // ============================================
 
 import { createServerSupabase } from '@/lib/supabase-server'
@@ -10,32 +10,20 @@ import type { Locale } from '@/lib/i18n-config'
 import type { BlogPost } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ShareButtons from '@/components/ShareButtons'
 
 type Props = { params: { lang: Locale; slug: string } }
-
 type BlogSeoRow = Pick<BlogPost, 'title_en' | 'title_es' | 'excerpt_en' | 'excerpt_es'>
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params
   const safeLang = validateLocale(lang)
   const safeSlug = sanitizeSlug(slug)
-  if (!safeSlug) {
-    return {
-      title: safeLang === 'es' ? 'Entrada no encontrada' : 'Post not found',
-      robots: { index: false, follow: true },
-    }
-  }
-
+  if (!safeSlug) return { title: safeLang === 'es' ? 'Entrada no encontrada' : 'Post not found', robots: { index: false, follow: true } }
   const supabase = createServerSupabase()
   const { data: raw } = await supabase.from('blog_posts').select('title_en, title_es, excerpt_en, excerpt_es').eq('slug', safeSlug).single()
   const data = raw as BlogSeoRow | null
-  if (!data) {
-    return {
-      title: safeLang === 'es' ? 'Entrada no encontrada' : 'Post not found',
-      robots: { index: false, follow: true },
-    }
-  }
-
+  if (!data) return { title: safeLang === 'es' ? 'Entrada no encontrada' : 'Post not found', robots: { index: false, follow: true } }
   const title = safeLang === 'es' ? data.title_es : data.title_en
   const description = safeLang === 'es' ? data.excerpt_es : data.excerpt_en
   const siteName = await siteNameForLang(safeLang)
@@ -46,7 +34,6 @@ export default async function BlogPostPage({ params }: Props) {
   const { lang, slug } = await params
   const safeLang = validateLocale(lang)
   const safeSlug = sanitizeSlug(slug)
-
   const supabase = createServerSupabase()
   let rawPost: unknown = null
   if (safeSlug) {
@@ -58,35 +45,24 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) {
     return (
       <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20 max-w-[800px] mx-auto">
-        <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">
-          ← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
-        </Link>
+        <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}</Link>
         <div className="sec-tag">BLOG</div>
-        <h1 className="sec-title text-[clamp(24px,5vw,44px)]">
-          <span className="hl">{safeSlug.replace(/-/g, ' ').toUpperCase()}</span>
-        </h1>
+        <h1 className="sec-title text-[clamp(24px,5vw,44px)]"><span className="hl">{safeSlug.replace(/-/g, ' ').toUpperCase()}</span></h1>
         <div className="mt-6 p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
-          <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '24px', color: 'var(--yellow)', marginBottom: '12px' }}>
-            {safeLang === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}
-          </div>
-          <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.8, color: 'rgba(232,220,200,0.6)' }}>
-            {safeLang === 'es' ? 'Este artículo se está preparando.' : 'This article is being prepared.'}
-          </p>
+          <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '24px', color: 'var(--yellow)', marginBottom: '12px' }}>{safeLang === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}</div>
+          <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.8, color: 'rgba(232,220,200,0.6)' }}>{safeLang === 'es' ? 'Este artículo se está preparando.' : 'This article is being prepared.'}</p>
         </div>
       </div>
     )
   }
 
   const title = safeLang === 'es' ? post.title_es : post.title_en
-  // SECURITY: Sanitize HTML content from database before rendering
   const rawContent = safeLang === 'es' ? post.content_es : post.content_en
   const content = sanitizeHtml(rawContent || '')
 
   return (
     <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20 max-w-[800px] mx-auto">
-      <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">
-        ← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
-      </Link>
+      <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}</Link>
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
         <span className="cutout red">{post.category}</span>
@@ -95,33 +71,28 @@ export default async function BlogPostPage({ params }: Props) {
         </span>
       </div>
 
-      <h1 className="sec-title text-[clamp(24px,5vw,44px)] mb-2">
-        <span className="hl">{title}</span>
-      </h1>
+      <h1 className="sec-title text-[clamp(24px,5vw,44px)] mb-2"><span className="hl">{title}</span></h1>
 
-      <div className="mb-8" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '12px', letterSpacing: '2px', color: 'var(--dim)' }}>
-        {safeLang === 'es' ? 'POR' : 'BY'} {post.author?.toUpperCase()}
+      {/* Share row */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: '12px', letterSpacing: '2px', color: 'var(--dim)' }}>
+          {safeLang === 'es' ? 'POR' : 'BY'} {post.author?.toUpperCase()}
+        </div>
+        <ShareButtons url={`/${safeLang}/blog/${safeSlug}`} title={`${title} | Optimal Breaks`} lang={safeLang} />
       </div>
 
       {post.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-8">
-          {post.tags.map((t: string, i: number) => (
-            <span key={i} className="cutout fill">{t}</span>
-          ))}
+          {post.tags.map((t: string, i: number) => <span key={i} className="cutout fill">{t}</span>)}
         </div>
       )}
 
-      {/* SECURITY: Content is sanitized via sanitizeHtml() before rendering */}
-      <article
-        className="prose-ob"
-        style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.9 }}
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <article className="prose-ob" style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.9 }} dangerouslySetInnerHTML={{ __html: content }} />
 
-      <div className="mt-12 pt-8 border-t-4 border-dashed border-[var(--ink)]">
-        <Link href={`/${safeLang}/blog`} className="cutout red no-underline">
-          ← {safeLang === 'es' ? 'MÁS ARTÍCULOS' : 'MORE ARTICLES'}
-        </Link>
+      {/* Bottom share */}
+      <div className="mt-12 pt-8 border-t-4 border-dashed border-[var(--ink)] flex flex-wrap items-center justify-between gap-4">
+        <Link href={`/${safeLang}/blog`} className="cutout red no-underline">← {safeLang === 'es' ? 'MÁS ARTÍCULOS' : 'MORE ARTICLES'}</Link>
+        <ShareButtons url={`/${safeLang}/blog/${safeSlug}`} title={`${title} | Optimal Breaks`} lang={safeLang} />
       </div>
     </div>
   )

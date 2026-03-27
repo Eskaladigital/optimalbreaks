@@ -3,16 +3,19 @@
 // Responsive borders handled by parent grid
 // ============================================
 
+import Link from 'next/link'
+
 interface ArtistCardProps {
   num: number
   name: string
   genres: string[]
   desc: string
+  href?: string
 }
 
-export default function ArtistCard({ num, name, genres, desc }: ArtistCardProps) {
-  return (
-    <div className="p-4 sm:p-[22px_30px] border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group min-w-0 flex flex-col h-full">
+export default function ArtistCard({ num, name, genres, desc, href }: ArtistCardProps) {
+  const inner = (
+    <>
       <div
         className="leading-none"
         style={{ fontFamily: "'Permanent Marker', cursive", fontSize: 'clamp(22px, 6vw, 36px)', color: 'var(--red)' }}
@@ -52,6 +55,18 @@ export default function ArtistCard({ num, name, genres, desc }: ArtistCardProps)
       <p className="mt-[10px] flex-grow" style={{ fontSize: '14px', lineHeight: 1.6, color: 'rgba(26,26,26,0.5)' }}>
         {desc}
       </p>
-    </div>
+    </>
   )
+
+  const shell = 'p-4 sm:p-[22px_30px] border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group min-w-0 flex flex-col h-full'
+
+  if (href) {
+    return (
+      <Link href={href} className={`${shell} no-underline text-[var(--ink)]`}>
+        {inner}
+      </Link>
+    )
+  }
+
+  return <div className={shell}>{inner}</div>
 }

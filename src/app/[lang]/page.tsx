@@ -7,19 +7,28 @@ import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
 import { staticPageMetadata } from '@/lib/seo'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import DjDeck from '@/components/DjDeck'
 import Marquee from '@/components/Marquee'
 import Timeline from '@/components/Timeline'
 import ArtistCard from '@/components/ArtistCard'
 import EventFlyer from '@/components/EventFlyer'
 
+type HomeExplore = {
+  tag: string
+  title_1: string
+  title_2: string
+  intro: string
+  items: { href: string; label: string; hint: string }[]
+}
+
 const FEATURED_ARTISTS = [
-  { name: 'DJ KOOL HERC', genres: ['Origins', 'Hip-Hop', 'Breaks'], desc_en: 'The DJ logic of stretching breaks begins here. Without Herc, the whole map looks different.', desc_es: 'Aquí empieza la lógica DJ de alargar breaks. Sin Herc, todo el mapa posterior cambia.' },
-  { name: 'THE PRODIGY', genres: ['Rave', 'Big Beat', 'Punk'], desc_en: 'They made British rave aggression legible to the world and turned broken rhythm into mass culture.', desc_es: 'Volvieron legible al mundo la agresión rave británica e hicieron del ritmo roto cultura de masas.' },
-  { name: 'CHEMICAL BROTHERS', genres: ['Big Beat', 'Psychedelic'], desc_en: 'They pushed breaks into psychedelic scale and crossover visibility.', desc_es: 'Llevaron los breaks a una escala psicodélica y de gran cruce popular.' },
-  { name: 'STANTON WARRIORS', genres: ['Nu Skool', 'Bass'], desc_en: 'One of the names that best define the international face of nu skool breaks.', desc_es: 'Uno de los nombres que mejor define la cara internacional del nu skool breaks.' },
-  { name: 'KRAFTY KUTS', genres: ['Breaks', 'Hip-Hop', 'DJ'], desc_en: 'A key bridge between breakbeat, DJ culture and the years of digital continuity.', desc_es: 'Puente clave entre breakbeat, cultura DJ y los años de continuidad digital.' },
-  { name: 'LADY WAKS', genres: ['Breaks', 'Radio', 'Community'], desc_en: 'Proof that the scene kept breathing through regular mixes, radio and online presence.', desc_es: 'Prueba de que la escena siguió respirando gracias a mixes regulares, radio y presencia online.' },
+  { slug: 'dj-kool-herc', name: 'DJ KOOL HERC', genres: ['Origins', 'Hip-Hop', 'Breaks'], desc_en: 'The DJ logic of stretching breaks begins here. Without Herc, the whole map looks different.', desc_es: 'Aquí empieza la lógica DJ de alargar breaks. Sin Herc, todo el mapa posterior cambia.' },
+  { slug: 'the-prodigy', name: 'THE PRODIGY', genres: ['Rave', 'Big Beat', 'Punk'], desc_en: 'They made British rave aggression legible to the world and turned broken rhythm into mass culture.', desc_es: 'Volvieron legible al mundo la agresión rave británica e hicieron del ritmo roto cultura de masas.' },
+  { slug: 'the-chemical-brothers', name: 'CHEMICAL BROTHERS', genres: ['Big Beat', 'Psychedelic'], desc_en: 'They pushed breaks into psychedelic scale and crossover visibility.', desc_es: 'Llevaron los breaks a una escala psicodélica y de gran cruce popular.' },
+  { slug: 'stanton-warriors', name: 'STANTON WARRIORS', genres: ['Nu Skool', 'Bass'], desc_en: 'One of the names that best define the international face of nu skool breaks.', desc_es: 'Uno de los nombres que mejor define la cara internacional del nu skool breaks.' },
+  { slug: 'krafty-kuts', name: 'KRAFTY KUTS', genres: ['Breaks', 'Hip-Hop', 'DJ'], desc_en: 'A key bridge between breakbeat, DJ culture and the years of digital continuity.', desc_es: 'Puente clave entre breakbeat, cultura DJ y los años de continuidad digital.' },
+  { slug: 'lady-waks', name: 'LADY WAKS', genres: ['Breaks', 'Radio', 'Community'], desc_en: 'Proof that the scene kept breathing through regular mixes, radio and online presence.', desc_es: 'Prueba de que la escena siguió respirando gracias a mixes regulares, radio y presencia online.' },
 ]
 
 export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
@@ -42,6 +51,8 @@ export default async function HomePage({
   const { lang } = await params
   const dict = await getDictionary(lang)
   const h = dict.home
+  const explore =
+    'section_explore' in h ? (h as { section_explore: HomeExplore }).section_explore : null
 
   return (
     <>
@@ -149,7 +160,13 @@ export default async function HomePage({
           {/* Text */}
           <div className="p-5 sm:p-[30px] border-[3px] border-[var(--ink)]">
             <p className="text-[15px] sm:text-[17px] leading-[1.8] mb-3" dangerouslySetInnerHTML={{ __html: h.section_what.p1 }} />
-            <p className="text-[15px] sm:text-[17px] leading-[1.8]" dangerouslySetInnerHTML={{ __html: h.section_what.p2 }} />
+            <p className="text-[15px] sm:text-[17px] leading-[1.8] mb-3" dangerouslySetInnerHTML={{ __html: h.section_what.p2 }} />
+            {'p3' in h.section_what && typeof (h.section_what as { p3?: string }).p3 === 'string' ? (
+              <p
+                className="text-[15px] sm:text-[17px] leading-[1.8] text-[var(--dim)]"
+                dangerouslySetInnerHTML={{ __html: (h.section_what as { p3: string }).p3 }}
+              />
+            ) : null}
           </div>
 
           {/* BPM dark side */}
@@ -196,32 +213,134 @@ export default async function HomePage({
         title1={h.section_history.title_1}
         title2={h.section_history.title_2}
         items={h.section_history.items}
+        footerLink={{
+          href: `/${lang}/history`,
+          label: (h as { timeline_footer?: string }).timeline_footer ?? 'History',
+        }}
       />
+
+      {/* ===== EXPLORE HUB (SEO + retención) ===== */}
+      {explore ? (
+        <section className="lined px-3 sm:px-6 py-12 sm:py-20 relative z-[1] border-b-[5px] border-[var(--ink)]">
+          <div className="sec-tag">{explore.tag}</div>
+          <h2 className="sec-title">
+            {explore.title_1}
+            <br />
+            <span className="hl">{explore.title_2}</span>
+          </h2>
+          <p
+            className="mt-4 max-w-[720px] text-[15px] sm:text-[17px] leading-[1.8] text-[var(--dim)]"
+            style={{ fontFamily: "'Special Elite', monospace" }}
+          >
+            {explore.intro}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 mt-8 sm:mt-10 border-4 border-[var(--ink)]">
+            {explore.items.map((item) => (
+              <Link
+                key={item.href}
+                href={`/${lang}${item.href}`}
+                className="group p-4 sm:p-5 border-b-[3px] sm:border-r-[3px] border-[var(--ink)] no-underline text-[var(--ink)] transition-colors hover:bg-[var(--yellow)] min-h-[100px] flex flex-col"
+              >
+                <span
+                  className="group-hover:text-[var(--red)]"
+                  style={{
+                    fontFamily: "'Unbounded', sans-serif",
+                    fontWeight: 800,
+                    fontSize: 'clamp(13px, 2.5vw, 16px)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '-0.3px',
+                  }}
+                >
+                  {item.label} →
+                </span>
+                <span
+                  className="mt-2 flex-grow"
+                  style={{
+                    fontFamily: "'Courier Prime', monospace",
+                    fontSize: '11px',
+                    lineHeight: 1.5,
+                    color: 'rgba(26,26,26,0.55)',
+                  }}
+                >
+                  {item.hint}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* ===== ARTISTS ===== */}
       <section className="lined px-3 sm:px-6 py-12 sm:py-20 relative z-[1]">
-        <div className="sec-tag">{h.section_artists.tag}</div>
-        <h2 className="sec-title">
-          {h.section_artists.title_1}
-          <br />
-          <span className="hl">{h.section_artists.title_2}</span>
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-2">
+          <div>
+            <div className="sec-tag">{h.section_artists.tag}</div>
+            <h2 className="sec-title mt-0">
+              {h.section_artists.title_1}
+              <br />
+              <span className="hl">{h.section_artists.title_2}</span>
+            </h2>
+          </div>
+          {'see_all' in h.section_artists ? (
+            <Link
+              href={`/${lang}/artists`}
+              className="shrink-0 inline-block no-underline border-[3px] border-[var(--ink)] px-4 py-2 bg-[var(--paper)] hover:bg-[var(--red)] hover:text-white hover:border-[var(--red)] transition-colors"
+              style={{
+                fontFamily: "'Courier Prime', monospace",
+                fontWeight: 700,
+                fontSize: '11px',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: 'var(--ink)',
+              }}
+            >
+              {(h.section_artists as { see_all: string }).see_all}
+            </Link>
+          ) : null}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 mt-8 sm:mt-10 border-4 border-[var(--ink)]">
           {FEATURED_ARTISTS.map((a, i) => (
-            <ArtistCard key={i} num={i + 1} name={a.name} genres={a.genres} desc={lang === 'es' ? a.desc_es : a.desc_en} />
+            <ArtistCard
+              key={a.slug}
+              num={i + 1}
+              name={a.name}
+              genres={a.genres}
+              desc={lang === 'es' ? a.desc_es : a.desc_en}
+              href={`/${lang}/artists/${a.slug}`}
+            />
           ))}
         </div>
       </section>
 
       {/* ===== EVENTS ===== */}
       <section className="px-3 sm:px-6 py-12 sm:py-20 relative z-[1]">
-        <div className="sec-tag">{h.section_events.tag}</div>
-        <h2 className="sec-title">
-          {h.section_events.title_1}
-          <br />
-          <span className="hl">{h.section_events.title_2}</span>
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-2">
+          <div>
+            <div className="sec-tag">{h.section_events.tag}</div>
+            <h2 className="sec-title mt-0">
+              {h.section_events.title_1}
+              <br />
+              <span className="hl">{h.section_events.title_2}</span>
+            </h2>
+          </div>
+          {'see_all' in h.section_events ? (
+            <Link
+              href={`/${lang}/events`}
+              className="shrink-0 inline-block no-underline border-[3px] border-[var(--ink)] px-4 py-2 bg-[var(--paper)] hover:bg-[var(--red)] hover:text-white hover:border-[var(--red)] transition-colors"
+              style={{
+                fontFamily: "'Courier Prime', monospace",
+                fontWeight: 700,
+                fontSize: '11px',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: 'var(--ink)',
+              }}
+            >
+              {(h.section_events as { see_all: string }).see_all}
+            </Link>
+          ) : null}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-[18px] mt-8 sm:mt-10">
           {FEATURED_EVENTS.map((e, i) => (
@@ -249,19 +368,44 @@ export default async function HomePage({
           <br />
           {h.cta.title_2}
         </h2>
-        <a
-          href="#"
-          className="inline-block mt-6 sm:mt-8 px-8 sm:px-[50px] py-3 sm:py-[14px] bg-white text-[var(--red)] border-4 border-white hover:bg-transparent hover:text-white transition-all duration-100 no-underline"
-          style={{
-            fontFamily: "'Unbounded', sans-serif",
-            fontWeight: 900,
-            fontSize: 'clamp(12px, 2vw, 16px)',
-            textTransform: 'uppercase',
-            letterSpacing: '2px',
-          }}
-        >
-          {h.cta.button} →
-        </a>
+        {'sub' in h.cta && (h.cta as { sub?: string }).sub ? (
+          <p
+            className="mt-4 max-w-[520px] mx-auto px-2 opacity-90"
+            style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.65 }}
+          >
+            {(h.cta as { sub: string }).sub}
+          </p>
+        ) : null}
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+          <Link
+            href={`/${lang}/history`}
+            className="inline-block px-8 sm:px-[50px] py-3 sm:py-[14px] bg-white text-[var(--red)] border-4 border-white hover:bg-transparent hover:text-white transition-all duration-100 no-underline"
+            style={{
+              fontFamily: "'Unbounded', sans-serif",
+              fontWeight: 900,
+              fontSize: 'clamp(12px, 2vw, 16px)',
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+            }}
+          >
+            {h.cta.button} →
+          </Link>
+          {'secondary' in h.cta && (h.cta as { secondary?: string }).secondary ? (
+            <Link
+              href={`/${lang}/blog`}
+              className="inline-block px-6 py-3 border-4 border-white text-white no-underline hover:bg-white hover:text-[var(--red)] transition-all duration-100"
+              style={{
+                fontFamily: "'Courier Prime', monospace",
+                fontWeight: 700,
+                fontSize: '12px',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+              }}
+            >
+              {(h.cta as { secondary: string }).secondary} →
+            </Link>
+          ) : null}
+        </div>
       </div>
     </>
   )
