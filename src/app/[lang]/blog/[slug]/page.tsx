@@ -4,22 +4,28 @@
 
 import { createServerSupabase } from '@/lib/supabase'
 import type { Locale } from '@/lib/i18n-config'
+import type { BlogPost } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
 type Props = { params: { lang: Locale; slug: string } }
 
+type BlogSeoRow = Pick<BlogPost, 'title_en' | 'title_es' | 'excerpt_en' | 'excerpt_es'>
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params
   const supabase = createServerSupabase()
-  const { data } = await supabase.from('blog_posts').select('title_en, title_es, excerpt_en, excerpt_es').eq('slug', slug).single()
+  const { data: raw } = await supabase.from('blog_posts').select('title_en, title_es, excerpt_en, excerpt_es').eq('slug', slug).single()
+  const data = raw as BlogSeoRow | null
   if (!data) return { title: 'Post Not Found' }
+  const title = lang === 'es' ? data.title_es : data.title_en
+  const description = lang === 'es' ? data.excerpt_es : data.excerpt_en
   return {
-    title: lang === 'es' ? data.title_es : data.title_en,
-    description: lang === 'es' ? data.excerpt_es : data.excerpt_en,
+    title,
+    description,
     openGraph: {
-      title: lang === 'es' ? data.title_es : data.title_en,
-      description: lang === 'es' ? data.excerpt_es : data.excerpt_en,
+      title,
+      description,
       type: 'article',
     },
   }
@@ -28,7 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { lang, slug } = await params
   const supabase = createServerSupabase()
-  const { data: post } = await supabase.from('blog_posts').select('*').eq('slug', slug).eq('is_published', true).single()
+  const { data: rawPost } = await supabase.from('blog_posts').select('*').eq('slug', slug).eq('is_published', true).single()
+  const post = rawPost as BlogPost | null
 
   if (!post) {
     return (
@@ -40,7 +47,7 @@ export default async function BlogPostPage({ params }: Props) {
         <h1 className="sec-title text-[clamp(24px,5vw,44px)]">
           <span className="hl">{slug.replace(/-/g, ' ').toUpperCase()}</span>
         </h1>
-        <div className="mt-6 p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
+        <div className="mt-6 p-4 sm:p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
           <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '24px', color: 'var(--yellow)', marginBottom: '12px' }}>
             {lang === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}
           </div>

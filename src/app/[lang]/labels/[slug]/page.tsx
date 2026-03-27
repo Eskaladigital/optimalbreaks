@@ -4,26 +4,31 @@
 
 import { createServerSupabase } from '@/lib/supabase'
 import type { Locale } from '@/lib/i18n-config'
+import type { Label } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
 type Props = { params: { lang: Locale; slug: string } }
 
+type LabelSeoRow = Pick<Label, 'name' | 'description_en' | 'description_es'>
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params
   const supabase = createServerSupabase()
-  const { data } = await supabase.from('labels').select('name, description_en, description_es').eq('slug', slug).single()
-  if (!data) return { title: 'Label Not Found' }
+  const { data: raw } = await supabase.from('labels').select('name, description_en, description_es').eq('slug', slug).single()
+  const data = raw as LabelSeoRow | null
+  if (!data?.name) return { title: 'Label Not Found' }
   return {
     title: data.name,
-    description: lang === 'es' ? data.description_es?.slice(0, 160) : data.description_en?.slice(0, 160),
+    description: (lang === 'es' ? data.description_es : data.description_en)?.slice(0, 160),
   }
 }
 
 export default async function LabelDetailPage({ params }: Props) {
   const { lang, slug } = await params
   const supabase = createServerSupabase()
-  const { data: label } = await supabase.from('labels').select('*').eq('slug', slug).single()
+  const { data: rawLabel } = await supabase.from('labels').select('*').eq('slug', slug).single()
+  const label = rawLabel as Label | null
 
   if (!label) {
     return (
@@ -31,7 +36,7 @@ export default async function LabelDetailPage({ params }: Props) {
         <Link href={`/${lang}/labels`} className="cutout outline no-underline mb-6 inline-block">← {lang === 'es' ? 'Volver a Sellos' : 'Back to Labels'}</Link>
         <div className="sec-tag">LABEL</div>
         <h1 className="sec-title"><span className="hl">{slug.replace(/-/g, ' ').toUpperCase()}</span></h1>
-        <div className="mt-6 p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
+        <div className="mt-6 p-4 sm:p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
           <div style={{ fontFamily: "'Permanent Marker', cursive", fontSize: '24px', color: 'var(--yellow)', marginBottom: '12px' }}>{lang === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}</div>
           <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.8, color: 'rgba(232,220,200,0.6)' }}>{lang === 'es' ? 'Ficha del sello en preparación.' : 'Label profile in preparation.'}</p>
         </div>
