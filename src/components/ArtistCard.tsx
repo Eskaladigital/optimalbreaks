@@ -52,7 +52,7 @@ export default function ArtistCard({ num, name, genres, desc, href }: ArtistCard
           </span>
         ))}
       </div>
-      <p className="mt-[10px] flex-grow" style={{ fontSize: '14px', lineHeight: 1.6, color: 'rgba(26,26,26,0.5)' }}>
+      <p className="mt-[10px] flex-grow" style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-muted)' }}>
         {desc}
       </p>
     </>

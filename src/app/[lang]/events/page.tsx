@@ -106,7 +106,7 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
 
   return (
     <div className="lined min-h-screen">
-      <section className="px-4 sm:px-6 py-14 sm:py-20 border-b-[5px] border-[var(--ink)]">
+      <section className="px-4 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">EVENTS</div>
         <h1 className="sec-title">{dict.events.title}<br /><span className="hl">BREAKBEAT</span></h1>
         <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '17px', lineHeight: 1.8, maxWidth: '700px', color: 'var(--dim)' }}>{dict.events.subtitle}</p>
@@ -116,7 +116,7 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
           ))}
         </div>
       </section>
-      <section className="px-4 sm:px-6 py-12 sm:py-16">
+      <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-[18px]">
             {list.map((e) => (
@@ -128,7 +128,7 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
                 <div className="mt-2 leading-none" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                   {e.name}
                 </div>
-                <div className="mt-2" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'rgba(26,26,26,0.45)' }}>
+                <div className="mt-2" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'var(--text-muted)' }}>
                   {e.venue ? `${e.venue} — ` : ''}{e.city}, {e.country}
                 </div>
                 <div className="absolute bottom-3 right-3 bg-[var(--red)] text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', padding: '3px 10px', transform: 'rotate(3deg)' }}>
@@ -160,7 +160,7 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
                   <div className="mt-2 leading-none" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                     {lang === 'es' ? event.name_es : event.name_en}
                   </div>
-                  <div className="mt-2" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'rgba(26,26,26,0.45)' }}>
+                  <div className="mt-2" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'var(--text-muted)' }}>
                     {lang === 'es' ? event.location_es : event.location_en}
                   </div>
                   <p className="mt-4 pr-16" style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', lineHeight: 1.7, color: 'var(--dim)' }}>

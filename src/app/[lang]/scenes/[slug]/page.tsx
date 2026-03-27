@@ -34,8 +34,8 @@ export default async function SceneDetailPage({ params }: Props) {
 
   if (!scene) {
     return (
-      <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20">
-        <Link href={`/${lang}/scenes`} className="cutout outline no-underline mb-6 inline-block">← {lang === 'es' ? 'Volver a Escenas' : 'Back to Scenes'}</Link>
+      <div className="lined min-h-screen px-4 sm:px-6 pt-8 pb-14 sm:pt-12 sm:pb-20">
+        <Link href={`/${lang}/scenes`} className="btn-back"><span className="arrow">←</span> {lang === 'es' ? 'Volver a Escenas' : 'Back to Scenes'}</Link>
         <div className="sec-tag">SCENE</div>
         <h1 className="sec-title"><span className="hl">{slug.replace(/-/g, ' ').toUpperCase()}</span></h1>
         <div className="mt-6 p-4 sm:p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
@@ -49,8 +49,8 @@ export default async function SceneDetailPage({ params }: Props) {
   const sceneName = lang === 'es' ? scene.name_es : scene.name_en
 
   return (
-    <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20">
-      <Link href={`/${lang}/scenes`} className="cutout outline no-underline mb-6 inline-block">← {lang === 'es' ? 'Volver a Escenas' : 'Back to Scenes'}</Link>
+    <div className="lined min-h-screen px-4 sm:px-6 pt-8 pb-14 sm:pt-12 sm:pb-20">
+      <Link href={`/${lang}/scenes`} className="btn-back"><span className="arrow">←</span> {lang === 'es' ? 'Volver a Escenas' : 'Back to Scenes'}</Link>
       <div className="sec-tag">SCENE</div>
       <h1 className="sec-title"><span className="hl">{sceneName}</span></h1>
 

@@ -120,7 +120,7 @@ export default function Header({ dict, lang }: HeaderProps) {
           ) : (
             <Link
               href={`/${lang}/login`}
-              className="flex items-center px-3 border-l-[3px] border-[var(--ink)] bg-[var(--yellow)] text-[var(--ink)]"
+              className="flex items-center px-3 border-l-[3px] border-[var(--ink)] bg-[var(--yellow)] text-[var(--ink)] hover:bg-[var(--red)] hover:text-white transition-colors"
               style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '10px', letterSpacing: '2px' }}
             >
               LOGIN

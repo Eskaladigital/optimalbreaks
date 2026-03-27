@@ -9,7 +9,7 @@ import type { Artist } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
-import { ARTIST_ERAS, FEATURED_ARTISTS } from '@/lib/artists-timeline'
+import { ARTIST_ERAS, FEATURED_ARTISTS, artistSlug } from '@/lib/artists-timeline'
 
 const FEATURED_ARTIST_DESCRIPTIONS: Record<string, { es: string; en: string; country: string }> = {
   'DJ KOOL HERC': {
@@ -84,7 +84,7 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
 
   return (
     <div className="lined min-h-screen">
-      <section className="px-4 sm:px-6 py-14 sm:py-20 border-b-[5px] border-[var(--ink)]">
+      <section className="px-4 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">ARTISTS</div>
         <h1 className="sec-title">
           {dict.artists.title}<br />
@@ -100,7 +100,7 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
         </div>
       </section>
 
-      <section className="px-4 sm:px-6 py-12 sm:py-16">
+      <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 border-4 border-[var(--ink)]">
             {list.map((a, i) => (
@@ -164,7 +164,7 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
                     <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{description?.country || 'INTL'}</span>
                     <span className="cutout outline" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{artist.era}</span>
                   </div>
-                  <p className="mt-3" style={{ fontSize: '14px', lineHeight: 1.6, color: 'rgba(26,26,26,0.6)' }}>
+                  <p className="mt-3" style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-muted)' }}>
                     {lang === 'es' ? description?.es : description?.en}
                   </p>
                 </Link>
@@ -194,9 +194,13 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
               </p>
               <div className="artist-era-names flex flex-wrap gap-2 sm:gap-3 mt-4">
                 {period.names.map((name) => (
-                  <span key={`${period.period}-${name}`} className={`cutout ${index % 2 === 0 ? 'red' : 'fill'}`}>
+                  <Link 
+                    href={`/${lang}/artists/${artistSlug(name)}`} 
+                    key={`${period.period}-${name}`} 
+                    className={`cutout ${index % 2 === 0 ? 'red' : 'fill'} hover:opacity-80 transition-opacity no-underline`}
+                  >
                     {name}
-                  </span>
+                  </Link>
                 ))}
               </div>
             </div>

@@ -34,7 +34,7 @@ export default function EventFlyer({ date, name, location, type }: EventFlyerPro
       >
         {name}
       </div>
-      <div className="mt-2 flex-grow pb-4" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'rgba(26,26,26,0.45)' }}>
+      <div className="mt-2 flex-grow pb-4" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'var(--text-muted)' }}>
         {location}
       </div>
 

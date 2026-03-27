@@ -62,13 +62,13 @@ export default function DjDeck({ dict }: DjDeckProps) {
           {h.deck_brand}
         </div>
         <div className="flex items-center gap-1 sm:gap-2 flex-1 sm:flex-none justify-center min-w-0">
-          <button type="button" onClick={() => { initAudio(); switchTrack(-1) }} className="text-white/30 hover:text-[var(--yellow)] transition-colors text-lg px-2 py-1">
+          <button type="button" onClick={() => { initAudio(); switchTrack(-1) }} className="text-white/50 hover:text-[var(--yellow)] transition-colors text-lg px-2 py-1">
             ◄
           </button>
           <div className="text-center truncate flex-1 max-w-[120px] sm:max-w-[200px]" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '9px', color: 'var(--yellow)', letterSpacing: '1px' }}>
             {track.title}
           </div>
-          <button type="button" onClick={() => { initAudio(); switchTrack(1) }} className="text-white/30 hover:text-[var(--yellow)] transition-colors text-lg px-2 py-1">
+          <button type="button" onClick={() => { initAudio(); switchTrack(1) }} className="text-white/50 hover:text-[var(--yellow)] transition-colors text-lg px-2 py-1">
             ►
           </button>
         </div>

@@ -261,7 +261,7 @@ export default async function HomePage({
                     fontFamily: "'Courier Prime', monospace",
                     fontSize: '11px',
                     lineHeight: 1.5,
-                    color: 'rgba(26,26,26,0.55)',
+                    color: 'var(--text-muted)',
                   }}
                 >
                   {item.hint}

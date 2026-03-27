@@ -99,12 +99,12 @@ export default async function BlogPage({ params }: { params: { lang: Locale } })
 
   return (
     <div className="lined min-h-screen">
-      <section className="px-4 sm:px-6 py-14 sm:py-20 border-b-[5px] border-[var(--ink)]">
+      <section className="px-4 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">BLOG</div>
         <h1 className="sec-title">{dict.blog.title}<br /><span className="hl">{lang === 'es' ? 'ARTÍCULOS' : 'ARTICLES'}</span></h1>
         <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '17px', lineHeight: 1.8, maxWidth: '700px', color: 'var(--dim)' }}>{dict.blog.subtitle}</p>
       </section>
-      <section className="px-4 sm:px-6 py-12 sm:py-16">
+      <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
           <div className="space-y-0 border-4 border-[var(--ink)]">
             {list.map((p) => (

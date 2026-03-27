@@ -86,7 +86,7 @@ export default async function HistoryPage({ params }: { params: { lang: Locale }
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="lined px-4 sm:px-6 py-14 sm:py-20 border-b-[5px] border-[var(--ink)]">
+      <section className="lined px-4 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">HISTORY</div>
         <h1 className="sec-title">{dict.history.title}<br /><span className="hl">BREAKBEAT</span></h1>
         <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '17px', lineHeight: 1.8, maxWidth: '700px', color: 'var(--dim)' }}>{dict.history.subtitle}</p>
@@ -99,7 +99,7 @@ export default async function HistoryPage({ params }: { params: { lang: Locale }
         return (
           <section
             key={entry.slug}
-            className={`px-4 sm:px-6 py-14 sm:py-20 ${isDark ? 'bg-[var(--ink)] text-[var(--paper)]' : 'lined'}`}
+            className={`px-4 sm:px-6 py-12 sm:py-16 ${isDark ? 'bg-[var(--ink)] text-[var(--paper)]' : 'lined'}`}
             style={isDark ? { borderTop: `6px solid ${color}`, borderBottom: `6px solid ${color}` } : {}}
           >
             <div className="max-w-[800px] mx-auto">
@@ -121,7 +121,7 @@ export default async function HistoryPage({ params }: { params: { lang: Locale }
                   textTransform: 'uppercase',
                   padding: '3px 10px',
                   background: color,
-                  color: isDark ? 'var(--ink)' : 'white',
+                  color: (color === 'var(--yellow)' || color === 'var(--acid)') ? 'var(--ink)' : (isDark ? 'var(--ink)' : 'white'),
                 }}
               >
                 {entry.section.replace(/_/g, ' ')}

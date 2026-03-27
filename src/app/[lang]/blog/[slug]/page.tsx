@@ -44,8 +44,8 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) {
     return (
-      <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20 max-w-[800px] mx-auto">
-        <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}</Link>
+      <div className="lined min-h-screen px-4 sm:px-6 pt-8 pb-14 sm:pt-12 sm:pb-20 max-w-[800px] mx-auto">
+        <Link href={`/${safeLang}/blog`} className="btn-back"><span className="arrow">←</span> {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}</Link>
         <div className="sec-tag">BLOG</div>
         <h1 className="sec-title text-[clamp(24px,5vw,44px)]"><span className="hl">{safeSlug.replace(/-/g, ' ').toUpperCase()}</span></h1>
         <div className="mt-6 p-8 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">
@@ -61,8 +61,8 @@ export default async function BlogPostPage({ params }: Props) {
   const content = sanitizeHtml(rawContent || '')
 
   return (
-    <div className="lined min-h-screen px-4 sm:px-6 py-14 sm:py-20 max-w-[800px] mx-auto">
-      <Link href={`/${safeLang}/blog`} className="cutout outline no-underline mb-6 inline-block">← {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}</Link>
+    <div className="lined min-h-screen px-4 sm:px-6 pt-8 pb-14 sm:pt-12 sm:pb-20 max-w-[800px] mx-auto">
+      <Link href={`/${safeLang}/blog`} className="btn-back"><span className="arrow">←</span> {safeLang === 'es' ? 'Volver al Blog' : 'Back to Blog'}</Link>
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
         <span className="cutout red">{post.category}</span>
@@ -91,7 +91,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Bottom share */}
       <div className="mt-12 pt-8 border-t-4 border-dashed border-[var(--ink)] flex flex-wrap items-center justify-between gap-4">
-        <Link href={`/${safeLang}/blog`} className="cutout red no-underline">← {safeLang === 'es' ? 'MÁS ARTÍCULOS' : 'MORE ARTICLES'}</Link>
+        <Link href={`/${safeLang}/blog`} className="btn-back !mb-0"><span className="arrow">←</span> {safeLang === 'es' ? 'MÁS ARTÍCULOS' : 'MORE ARTICLES'}</Link>
         <ShareButtons url={`/${safeLang}/blog/${safeSlug}`} title={`${title} | Optimal Breaks`} lang={safeLang} />
       </div>
     </div>

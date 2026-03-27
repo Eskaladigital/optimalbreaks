@@ -18,7 +18,7 @@ export default async function AboutPage({ params }: { params: { lang: Locale } }
 
   return (
     <div className="lined min-h-screen">
-      <section className="px-3 sm:px-6 py-12 sm:py-20 border-b-[5px] border-[var(--ink)]">
+      <section className="px-3 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">ABOUT</div>
         <h1 className="sec-title">
           {dict.about.title}

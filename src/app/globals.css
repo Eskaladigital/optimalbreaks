@@ -23,6 +23,8 @@
   --yellow: #f7e733;
   --blue: #1d4ed8;
   --dim: #888;
+  /* Texto secundario sobre fondos papel (mejor contraste que --dim puro) */
+  --text-muted: #4a4238;
   --tape: rgba(247, 231, 51, 0.5);
   --warn-stripe: repeating-linear-gradient(
     -45deg,
@@ -113,6 +115,35 @@ body::before {
 }
 
 /* === Utility Classes === */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 3px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-family: 'Courier Prime', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.15s;
+  margin-bottom: 24px;
+}
+.btn-back:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+}
+.btn-back:hover .arrow {
+  transform: translateX(-4px);
+}
+.btn-back .arrow {
+  transition: transform 0.15s;
+}
+
 .animate-spin-vinyl {
   animation: spin 2s linear infinite;
 }
@@ -150,7 +181,7 @@ body::before {
 }
 .cutout.fill { background: var(--ink); color: var(--paper); }
 .cutout.red { background: var(--red); color: white; }
-.cutout.acid { background: var(--acid); color: white; }
+.cutout.acid { background: var(--acid); color: var(--ink); }
 .cutout.uv { background: var(--uv); color: white; }
 .cutout.pink { background: var(--pink); color: white; }
 .cutout.blue { background: var(--blue); color: white; }
