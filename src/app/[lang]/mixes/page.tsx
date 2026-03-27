@@ -8,6 +8,7 @@ import type { Locale } from '@/lib/i18n-config'
 import type { Mix } from '@/types/database'
 import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/seo'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type FallbackMix = {
   type: string
@@ -115,9 +116,11 @@ export default async function MixesPage({ params }: { params: { lang: Locale } }
             {list.map((m) => (
               <div
                 key={m.slug}
-                className="border-[3px] border-[var(--ink)] p-5 sm:p-7 relative transition-all duration-150 bg-[var(--paper)] hover:rotate-[-1deg] hover:shadow-[6px_6px_0_var(--ink)]"
+                className="border-[3px] border-[var(--ink)] relative transition-all duration-150 bg-[var(--paper)] sm:hover:rotate-[-1deg] sm:hover:shadow-[6px_6px_0_var(--ink)] overflow-hidden group"
               >
-                <div className="absolute -top-[6px] left-[20px] w-[60px] h-[18px]" style={{ background: 'var(--tape)', transform: 'rotate(-2deg)' }} />
+                <CardThumbnail src={m.image_url} alt={m.title} aspectClass="aspect-[16/10]" />
+                <div className="p-5 sm:p-7 relative">
+                <div className="absolute -top-[6px] left-[20px] w-[60px] h-[18px] z-[1]" style={{ background: 'var(--tape)', transform: 'rotate(-2deg)' }} />
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="cutout red" style={{ margin: 0 }}>{m.mix_type?.replace('_', ' ')}</span>
                   <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: '11px', color: 'var(--dim)' }}>
@@ -140,6 +143,7 @@ export default async function MixesPage({ params }: { params: { lang: Locale } }
                     ▶ {m.platform?.toUpperCase()}
                   </div>
                 )}
+                </div>
               </div>
             ))}
           </div>
@@ -160,9 +164,11 @@ export default async function MixesPage({ params }: { params: { lang: Locale } }
               {FALLBACK_MIXES.map((mix) => (
                 <div
                   key={`${mix.artist}-${mix.title_en}`}
-                  className="border-[3px] border-[var(--ink)] p-5 sm:p-7 relative transition-all duration-150 bg-[var(--paper)] hover:rotate-[-1deg] hover:shadow-[6px_6px_0_var(--ink)]"
+                  className="border-[3px] border-[var(--ink)] relative transition-all duration-150 bg-[var(--paper)] sm:hover:rotate-[-1deg] sm:hover:shadow-[6px_6px_0_var(--ink)] overflow-hidden group"
                 >
-                  <div className="absolute -top-[6px] left-[20px] w-[60px] h-[18px]" style={{ background: 'var(--tape)', transform: 'rotate(-2deg)' }} />
+                  <CardThumbnail src={null} alt={lang === 'es' ? mix.title_es : mix.title_en} aspectClass="aspect-[21/9] sm:aspect-[16/10]" />
+                  <div className="p-5 sm:p-7 relative">
+                  <div className="absolute -top-[6px] left-[20px] w-[60px] h-[18px] z-[1]" style={{ background: 'var(--tape)', transform: 'rotate(-2deg)' }} />
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="cutout red" style={{ margin: 0 }}>{mix.type}</span>
                     <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: '11px', color: 'var(--dim)' }}>
@@ -180,6 +186,7 @@ export default async function MixesPage({ params }: { params: { lang: Locale } }
                   </p>
                   <div className="absolute bottom-3 right-3 bg-[var(--ink)] text-[var(--yellow)]" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '11px', letterSpacing: '2px', padding: '4px 12px', transform: 'rotate(2deg)' }}>
                     ▶ {mix.platform}
+                  </div>
                   </div>
                 </div>
               ))}

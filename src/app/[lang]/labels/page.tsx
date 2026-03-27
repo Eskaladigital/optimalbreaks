@@ -9,6 +9,7 @@ import type { Label } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type FallbackLabel = {
   founded: string
@@ -93,12 +94,19 @@ export default async function LabelsPage({ params }: { params: { lang: Locale } 
         {list.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
             {list.map((l) => (
-              <Link key={l.slug} href={`/${lang}/labels/${l.slug}`} className="p-6 sm:p-8 border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)] max-md:!border-r-0">
-                <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '16px', color: 'var(--red)' }}>Est. {l.founded_year || '?'}</div>
-                <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>{l.name}</div>
-                <div className="flex gap-2 mt-2">
-                  <span className="cutout fill" style={{ margin: 0 }}>{l.country}</span>
-                  <span className={`cutout ${l.is_active ? 'acid' : 'outline'}`} style={{ margin: 0 }}>{l.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
+              <Link
+                key={l.slug}
+                href={`/${lang}/labels/${l.slug}`}
+                className="border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)] max-md:!border-r-0 flex flex-col overflow-hidden group min-h-0"
+              >
+                <CardThumbnail src={l.image_url} alt={l.name} aspectClass="aspect-[3/2]" />
+                <div className="p-6 sm:p-8 flex flex-col flex-grow min-h-0">
+                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '16px', color: 'var(--red)' }}>Est. {l.founded_year || '?'}</div>
+                  <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>{l.name}</div>
+                  <div className="flex gap-2 mt-2">
+                    <span className="cutout fill" style={{ margin: 0 }}>{l.country}</span>
+                    <span className={`cutout ${l.is_active ? 'acid' : 'outline'}`} style={{ margin: 0 }}>{l.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -118,7 +126,9 @@ export default async function LabelsPage({ params }: { params: { lang: Locale } 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
               {FALLBACK_LABELS.map((label) => (
-                <div key={label.name} className="p-6 sm:p-8 border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] text-[var(--ink)] max-md:!border-r-0">
+                <div key={label.name} className="border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] text-[var(--ink)] max-md:!border-r-0 flex flex-col overflow-hidden group min-h-0">
+                  <CardThumbnail src={null} alt={label.name} aspectClass="aspect-[21/9] sm:aspect-[3/2]" />
+                  <div className="p-6 sm:p-8">
                   <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '16px', color: 'var(--red)' }}>Est. {label.founded}</div>
                   <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                     {label.name}
@@ -130,6 +140,7 @@ export default async function LabelsPage({ params }: { params: { lang: Locale } 
                   <p className="mt-4" style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', lineHeight: 1.7, color: 'var(--dim)' }}>
                     {lang === 'es' ? label.desc_es : label.desc_en}
                   </p>
+                  </div>
                 </div>
               ))}
             </div>

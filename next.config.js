@@ -53,7 +53,7 @@ const nextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js needs inline scripts
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: https://*.supabase.co",
+              "img-src 'self' data: https:",
               "media-src 'self'",
               "connect-src 'self' https://*.supabase.co",
               "frame-src 'self' https://www.youtube.com https://w.soundcloud.com https://www.mixcloud.com",

@@ -10,6 +10,7 @@ import type { Scene } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type Props = { params: { lang: Locale; slug: string } }
 type SceneSeoRow = Pick<Scene, 'name_en' | 'name_es' | 'description_en' | 'description_es'>
@@ -57,6 +58,10 @@ export default async function SceneDetailPage({ params }: Props) {
       {/* Share row */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <ShareButtons url={`/${lang}/scenes/${slug}`} title={`${sceneName} | Optimal Breaks`} lang={lang} />
+      </div>
+
+      <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden">
+        <CardThumbnail src={scene.image_url} alt={sceneName} heightClass="h-48 sm:h-56 md:h-64" frameClass="border-0" />
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">

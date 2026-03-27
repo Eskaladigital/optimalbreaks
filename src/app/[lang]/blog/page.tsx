@@ -9,6 +9,7 @@ import type { BlogPost } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type FallbackPost = {
   category: string
@@ -88,12 +89,12 @@ export default async function BlogPage({ params }: { params: { lang: Locale } })
   const supabase = createServerSupabase()
   const { data: posts } = await supabase
     .from('blog_posts')
-    .select('slug, title_en, title_es, excerpt_en, excerpt_es, category, published_at, tags, author')
+    .select('slug, title_en, title_es, excerpt_en, excerpt_es, category, published_at, tags, author, image_url')
     .eq('is_published', true)
     .order('published_at', { ascending: false })
   type BlogListRow = Pick<
     BlogPost,
-    'slug' | 'title_en' | 'title_es' | 'excerpt_en' | 'excerpt_es' | 'category' | 'published_at' | 'tags' | 'author'
+    'slug' | 'title_en' | 'title_es' | 'excerpt_en' | 'excerpt_es' | 'category' | 'published_at' | 'tags' | 'author' | 'image_url'
   >
   const list = (posts || []) as BlogListRow[]
 
@@ -107,26 +108,39 @@ export default async function BlogPage({ params }: { params: { lang: Locale } })
       <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
           <div className="space-y-0 border-4 border-[var(--ink)]">
-            {list.map((p) => (
+            {list.map((p) => {
+              const title = lang === 'es' ? p.title_es : p.title_en
+              return (
               <Link
                 key={p.slug}
                 href={`/${lang}/blog/${p.slug}`}
-                className="block p-6 sm:p-8 border-b-[3px] border-[var(--ink)] last:border-b-0 transition-all duration-150 hover:bg-[var(--yellow)] hover:pl-8 sm:hover:pl-12 no-underline text-[var(--ink)]"
+                className="group flex flex-col sm:flex-row border-b-[3px] border-[var(--ink)] last:border-b-0 transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)] overflow-hidden"
               >
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <span className="cutout red" style={{ margin: 0 }}>{p.category}</span>
-                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: '11px', color: 'var(--dim)' }}>
-                    {new Date(p.published_at).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
-                  </span>
+                <div className="w-full shrink-0 sm:w-[min(240px,32vw)] sm:max-w-[260px] border-b-[3px] sm:border-b-0 sm:border-r-[3px] border-[var(--ink)]">
+                  <CardThumbnail
+                    src={p.image_url}
+                    alt={title}
+                    aspectClass="aspect-[16/9] sm:aspect-[4/3]"
+                    frameClass="border-0"
+                  />
                 </div>
-                <div className="mt-3" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 22px)', textTransform: 'uppercase', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
-                  {lang === 'es' ? p.title_es : p.title_en}
+                <div className="flex flex-col justify-center p-6 sm:p-8 sm:pl-10 flex-grow min-w-0 transition-[padding] duration-150 sm:group-hover:pl-12">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <span className="cutout red" style={{ margin: 0 }}>{p.category}</span>
+                    <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: '11px', color: 'var(--dim)' }}>
+                      {new Date(p.published_at).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  <div className="mt-3" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 22px)', textTransform: 'uppercase', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                    {title}
+                  </div>
+                  <p className="mt-2" style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: 'var(--dim)', lineHeight: 1.5 }}>
+                    {lang === 'es' ? p.excerpt_es : p.excerpt_en}
+                  </p>
                 </div>
-                <p className="mt-2" style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: 'var(--dim)', lineHeight: 1.5 }}>
-                  {lang === 'es' ? p.excerpt_es : p.excerpt_en}
-                </p>
               </Link>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="space-y-0 border-4 border-[var(--ink)]">

@@ -11,6 +11,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
 import FanCounter from '@/components/FanCounter'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type Props = { params: { lang: Locale; slug: string } }
 type EventSeoRow = Pick<BreakEvent, 'name' | 'description_en' | 'description_es'>
@@ -56,6 +57,10 @@ export default async function EventDetailPage({ params }: Props) {
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <FanCounter type="event" entityId={event.id} lang={lang} />
         <ShareButtons url={`/${lang}/events/${slug}`} title={`${event.name} | Optimal Breaks`} lang={lang} />
+      </div>
+
+      <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden">
+        <CardThumbnail src={event.image_url} alt={event.name} heightClass="h-48 sm:h-56 md:h-64" frameClass="border-0" />
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">

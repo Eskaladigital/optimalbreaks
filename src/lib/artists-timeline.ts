@@ -332,6 +332,8 @@ export type FeaturedArtist = {
   category: FeaturedCategory
   genres: string[]
   era: string
+  /** URL pública (p. ej. Supabase Storage); si falta, placeholder con iniciales */
+  image_url?: string | null
 }
 
 /** Selección de cabina enlazable; prioriza el mapa del documento de historia. */

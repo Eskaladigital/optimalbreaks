@@ -11,6 +11,7 @@ import type { BlogPost } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type Props = { params: { lang: Locale; slug: string } }
 type BlogSeoRow = Pick<BlogPost, 'title_en' | 'title_es' | 'excerpt_en' | 'excerpt_es'>
@@ -79,6 +80,10 @@ export default async function BlogPostPage({ params }: Props) {
           {safeLang === 'es' ? 'POR' : 'BY'} {post.author?.toUpperCase()}
         </div>
         <ShareButtons url={`/${safeLang}/blog/${safeSlug}`} title={`${title} | Optimal Breaks`} lang={safeLang} />
+      </div>
+
+      <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden">
+        <CardThumbnail src={post.image_url} alt={title} aspectClass="aspect-[16/9] sm:aspect-[21/9]" frameClass="border-0" />
       </div>
 
       {post.tags?.length > 0 && (

@@ -9,6 +9,7 @@ import type { Scene } from '@/types/database'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type FallbackScene = {
   name_es: string
@@ -93,19 +94,28 @@ export default async function ScenesPage({ params }: { params: { lang: Locale } 
         {list.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
             {list.map((s) => (
-              <Link key={s.slug} href={`/${lang}/scenes/${s.slug}`} className="p-6 sm:p-8 border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)] max-md:!border-r-0">
-                <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '14px', color: 'var(--red)' }}>{s.era}</div>
-                <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                  {lang === 'es' ? s.name_es : s.name_en}
+              <Link
+                key={s.slug}
+                href={`/${lang}/scenes/${s.slug}`}
+                className="border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)] max-md:!border-r-0 flex flex-col overflow-hidden group min-h-0"
+              >
+                <CardThumbnail src={s.image_url} alt={lang === 'es' ? s.name_es : s.name_en} aspectClass="aspect-[5/3]" />
+                <div className="p-6 sm:p-8">
+                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '14px', color: 'var(--red)' }}>{s.era}</div>
+                  <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+                    {lang === 'es' ? s.name_es : s.name_en}
+                  </div>
+                  <div className="mt-1" style={{ fontSize: '14px', color: 'var(--dim)' }}>{s.region || s.country}</div>
                 </div>
-                <div className="mt-1" style={{ fontSize: '14px', color: 'var(--dim)' }}>{s.region || s.country}</div>
               </Link>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
             {FALLBACK_SCENES.map((scene) => (
-              <div key={scene.name_en} className="p-6 sm:p-8 border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] text-[var(--ink)] max-md:!border-r-0">
+              <div key={scene.name_en} className="border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] text-[var(--ink)] max-md:!border-r-0 flex flex-col overflow-hidden group min-h-0">
+                <CardThumbnail src={null} alt={lang === 'es' ? scene.name_es : scene.name_en} aspectClass="aspect-[21/9] sm:aspect-[5/3]" />
+                <div className="p-6 sm:p-8">
                 <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '14px', color: 'var(--red)' }}>{scene.era}</div>
                 <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
                   {lang === 'es' ? scene.name_es : scene.name_en}
@@ -114,6 +124,7 @@ export default async function ScenesPage({ params }: { params: { lang: Locale } 
                 <p className="mt-3" style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', lineHeight: 1.7, color: 'var(--dim)' }}>
                   {lang === 'es' ? scene.desc_es : scene.desc_en}
                 </p>
+                </div>
               </div>
             ))}
           </div>

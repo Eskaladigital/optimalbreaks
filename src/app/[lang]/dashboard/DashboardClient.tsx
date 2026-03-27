@@ -5,12 +5,13 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { useProfile, useFavoriteArtists, useFavoriteLabels, useSavedMixes, useEventAttendance, useArtistSightings, useEventRatings } from '@/hooks/useUserData'
 import { createBrowserSupabase } from '@/lib/supabase'
 import Link from 'next/link'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type Tab = 'overview' | 'favorites' | 'sightings' | 'events' | 'mixes' | 'profile'
 
@@ -151,16 +152,32 @@ function FavoritesTab({ lang }: { lang: string }) {
   const [labels, setLabels] = useState<any[]>([])
   const es = lang === 'es'
 
-  // Fetch full data for favorites
-  useState(() => {
+  useEffect(() => {
     const supabase = createBrowserSupabase()
-    if (artistIds.length > 0) {
-      supabase.from('artists').select('id, slug, name, name_display, styles, country').in('id', artistIds).then(({ data }) => setArtists(data || []))
+    let cancelled = false
+
+    ;(async () => {
+      if (artistIds.length === 0) {
+        if (!cancelled) setArtists([])
+      } else {
+        const { data } = await supabase
+          .from('artists')
+          .select('id, slug, name, name_display, styles, country, image_url')
+          .in('id', artistIds)
+        if (!cancelled) setArtists(data || [])
+      }
+      if (labelIds.length === 0) {
+        if (!cancelled) setLabels([])
+      } else {
+        const { data } = await supabase.from('labels').select('id, slug, name, country, image_url').in('id', labelIds)
+        if (!cancelled) setLabels(data || [])
+      }
+    })()
+
+    return () => {
+      cancelled = true
     }
-    if (labelIds.length > 0) {
-      supabase.from('labels').select('id, slug, name, country').in('id', labelIds).then(({ data }) => setLabels(data || []))
-    }
-  })
+  }, [artistIds, labelIds])
 
   return (
     <div>
@@ -174,9 +191,21 @@ function FavoritesTab({ lang }: { lang: string }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-4 border-[var(--ink)] mb-8">
           {artists.map((a) => (
-            <Link key={a.id} href={`/${lang}/artists/${a.slug}`} className="p-4 border-b-[3px] border-r-[3px] border-[var(--ink)] hover:bg-[var(--yellow)] no-underline text-[var(--ink)] transition-all">
-              <div style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: '16px', textTransform: 'uppercase' }}>{a.name_display || a.name}</div>
-              <div className="flex gap-1 mt-1">{a.styles?.map((s: string, i: number) => <span key={i} className="cutout fill" style={{ fontSize: '8px', padding: '1px 5px', margin: 0 }}>{s}</span>)}</div>
+            <Link
+              key={a.id}
+              href={`/${lang}/artists/${a.slug}`}
+              className="group flex flex-col border-b-[3px] sm:border-r-[3px] border-[var(--ink)] hover:bg-[var(--yellow)] no-underline text-[var(--ink)] transition-all overflow-hidden"
+            >
+              <CardThumbnail
+                src={a.image_url}
+                alt={a.name_display || a.name}
+                heightClass="h-28 sm:h-32"
+                frameClass="border-b-[3px] border-[var(--ink)]"
+              />
+              <div className="p-4">
+                <div style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: '16px', textTransform: 'uppercase' }}>{a.name_display || a.name}</div>
+                <div className="flex gap-1 mt-1 flex-wrap">{a.styles?.map((s: string, i: number) => <span key={i} className="cutout fill" style={{ fontSize: '8px', padding: '1px 5px', margin: 0 }}>{s}</span>)}</div>
+              </div>
             </Link>
           ))}
         </div>
@@ -192,9 +221,16 @@ function FavoritesTab({ lang }: { lang: string }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
           {labels.map((l) => (
-            <Link key={l.id} href={`/${lang}/labels/${l.slug}`} className="p-4 border-b-[3px] border-r-[3px] border-[var(--ink)] hover:bg-[var(--yellow)] no-underline text-[var(--ink)] transition-all">
-              <div style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: '16px', textTransform: 'uppercase' }}>{l.name}</div>
-              <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 5px', margin: 0 }}>{l.country}</span>
+            <Link
+              key={l.id}
+              href={`/${lang}/labels/${l.slug}`}
+              className="group flex flex-col border-b-[3px] sm:border-r-[3px] border-[var(--ink)] hover:bg-[var(--yellow)] no-underline text-[var(--ink)] transition-all overflow-hidden"
+            >
+              <CardThumbnail src={l.image_url} alt={l.name} heightClass="h-28 sm:h-32" frameClass="border-b-[3px] border-[var(--ink)]" />
+              <div className="p-4">
+                <div style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: '16px', textTransform: 'uppercase' }}>{l.name}</div>
+                <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 5px', margin: 0 }}>{l.country}</span>
+              </div>
             </Link>
           ))}
         </div>

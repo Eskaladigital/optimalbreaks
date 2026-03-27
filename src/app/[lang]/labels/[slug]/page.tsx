@@ -11,6 +11,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
 import FanCounter from '@/components/FanCounter'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type Props = { params: { lang: Locale; slug: string } }
 type LabelSeoRow = Pick<Label, 'name' | 'description_en' | 'description_es'>
@@ -56,6 +57,10 @@ export default async function LabelDetailPage({ params }: Props) {
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <FanCounter type="label" entityId={label.id} lang={lang} />
         <ShareButtons url={`/${lang}/labels/${slug}`} title={`${label.name} | Optimal Breaks`} lang={lang} />
+      </div>
+
+      <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden">
+        <CardThumbnail src={label.image_url} alt={label.name} heightClass="h-44 sm:h-52 md:h-56" frameClass="border-0" />
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">

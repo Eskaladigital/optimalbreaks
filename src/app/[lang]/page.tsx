@@ -22,7 +22,14 @@ type HomeExplore = {
   items: { href: string; label: string; hint: string }[]
 }
 
-const FEATURED_ARTISTS = [
+const FEATURED_ARTISTS: {
+  slug: string
+  name: string
+  genres: string[]
+  desc_en: string
+  desc_es: string
+  image_url?: string | null
+}[] = [
   { slug: 'dj-kool-herc', name: 'DJ KOOL HERC', genres: ['Origins', 'Hip-Hop', 'Breaks'], desc_en: 'The DJ logic of stretching breaks begins here. Without Herc, the whole map looks different.', desc_es: 'Aquí empieza la lógica DJ de alargar breaks. Sin Herc, todo el mapa posterior cambia.' },
   { slug: 'the-prodigy', name: 'THE PRODIGY', genres: ['Rave', 'Big Beat', 'Punk'], desc_en: 'They made British rave aggression legible to the world and turned broken rhythm into mass culture.', desc_es: 'Volvieron legible al mundo la agresión rave británica e hicieron del ritmo roto cultura de masas.' },
   { slug: 'the-chemical-brothers', name: 'CHEMICAL BROTHERS', genres: ['Big Beat', 'Psychedelic'], desc_en: 'They pushed breaks into psychedelic scale and crossover visibility.', desc_es: 'Llevaron los breaks a una escala psicodélica y de gran cruce popular.' },
@@ -36,7 +43,14 @@ export async function generateMetadata({ params }: { params: { lang: Locale } })
   return staticPageMetadata(lang, '', 'home')
 }
 
-const FEATURED_EVENTS = [
+const FEATURED_EVENTS: {
+  date_en: string
+  date_es: string
+  name: string
+  location: string
+  type: string
+  image_url?: string | null
+}[] = [
   { date_en: '1973', date_es: '1973', name: 'BRONX BLOCK PARTIES', location: 'Bronx — New York', type: 'ORIGIN' },
   { date_en: '1988-1992', date_es: '1988-1992', name: 'UK WAREHOUSE RAVES', location: 'London and beyond', type: 'RAVE' },
   { date_en: '2003-2015', date_es: '2003-2015', name: 'BREAKSPOLL', location: 'Fabric / Cable / Manchester', type: 'AWARDS' },
@@ -310,6 +324,7 @@ export default async function HomePage({
               genres={a.genres}
               desc={lang === 'es' ? a.desc_es : a.desc_en}
               href={`/${lang}/artists/${a.slug}`}
+              imageUrl={a.image_url}
             />
           ))}
         </div>
@@ -346,7 +361,14 @@ export default async function HomePage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-[18px] mt-8 sm:mt-10">
           {FEATURED_EVENTS.map((e, i) => (
-            <EventFlyer key={i} date={lang === 'es' ? e.date_es : e.date_en} name={e.name} location={e.location} type={e.type} />
+            <EventFlyer
+              key={i}
+              date={lang === 'es' ? e.date_es : e.date_en}
+              name={e.name}
+              location={e.location}
+              type={e.type}
+              imageUrl={e.image_url}
+            />
           ))}
         </div>
       </section>

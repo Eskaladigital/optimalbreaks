@@ -24,7 +24,7 @@ module.exports = {
         display: ['Unbounded', 'sans-serif'],
         mono: ['Courier Prime', 'monospace'],
         body: ['Special Elite', 'monospace'],
-        marker: ['Permanent Marker', 'cursive'],
+        marker: ['Darker Grotesque', 'sans-serif'],
         grotesk: ['Darker Grotesque', 'sans-serif'],
       },
       keyframes: {

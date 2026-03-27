@@ -11,6 +11,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
 import FanCounter from '@/components/FanCounter'
+import CardThumbnail from '@/components/CardThumbnail'
 
 type Props = { params: { lang: Locale; slug: string } }
 type ArtistSeoRow = Pick<Artist, 'name' | 'bio_en' | 'bio_es'>
@@ -58,6 +59,15 @@ export default async function ArtistDetailPage({ params }: Props) {
       <div className="flex flex-wrap items-center gap-3 mb-8">
         <FanCounter type="artist" entityId={artist.id} lang={lang} />
         <ShareButtons url={`/${lang}/artists/${slug}`} title={`${artist.name} | Optimal Breaks`} lang={lang} />
+      </div>
+
+      <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden">
+        <CardThumbnail
+          src={artist.image_url}
+          alt={artist.name_display || artist.name}
+          heightClass="h-48 sm:h-64 md:h-72"
+          frameClass="border-0"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-0 border-4 border-[var(--ink)]">

@@ -10,6 +10,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
 import { ARTIST_ERAS, FEATURED_ARTISTS, artistSlug } from '@/lib/artists-timeline'
+import CardThumbnail from '@/components/CardThumbnail'
 
 const FEATURED_ARTIST_DESCRIPTIONS: Record<string, { es: string; en: string; country: string }> = {
   'DJ KOOL HERC': {
@@ -72,12 +73,12 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
   const supabase = createServerSupabase()
   const { data: artists } = await supabase
     .from('artists')
-    .select('slug, name, name_display, country, category, styles, era, is_featured, sort_order')
+    .select('slug, name, name_display, country, category, styles, era, is_featured, sort_order, image_url')
     .order('sort_order', { ascending: true })
 
   type ArtistListRow = Pick<
     Artist,
-    'slug' | 'name' | 'name_display' | 'country' | 'category' | 'styles' | 'era' | 'is_featured' | 'sort_order'
+    'slug' | 'name' | 'name_display' | 'country' | 'category' | 'styles' | 'era' | 'is_featured' | 'sort_order' | 'image_url'
   >
   const list = (artists || []) as ArtistListRow[]
   const filters = Object.entries(dict.artists.filters) as [string, string][]
@@ -107,24 +108,27 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
               <Link
                 key={a.slug}
                 href={`/${lang}/artists/${a.slug}`}
-                className="p-5 sm:p-[22px_30px] border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group no-underline text-[var(--ink)]"
+                className="border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group no-underline text-[var(--ink)] flex flex-col overflow-hidden h-full min-h-0"
               >
-                <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 36px)', color: 'var(--red)', lineHeight: 1 }}>
-                  #{i + 1}
-                </div>
-                <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 20px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                  {a.name_display || a.name}
-                </div>
-                <div className="flex flex-wrap gap-1 mt-[6px]">
-                  {a.styles?.map((s: string, si: number) => (
-                    <span key={si} className="bg-[var(--ink)] text-[var(--paper)] group-hover:bg-[var(--red)] group-hover:text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', padding: '2px 7px' }}>
-                      {s}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{a.country}</span>
-                  <span className="cutout outline" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{a.era}</span>
+                <CardThumbnail src={a.image_url} alt={a.name_display || a.name} aspectClass="aspect-[5/3]" />
+                <div className="p-5 sm:p-[22px_30px] flex flex-col flex-grow min-h-0">
+                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 36px)', color: 'var(--red)', lineHeight: 1 }}>
+                    #{i + 1}
+                  </div>
+                  <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 20px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+                    {a.name_display || a.name}
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-[6px]">
+                    {a.styles?.map((s: string, si: number) => (
+                      <span key={si} className="bg-[var(--ink)] text-[var(--paper)] group-hover:bg-[var(--red)] group-hover:text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', padding: '2px 7px' }}>
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{a.country}</span>
+                    <span className="cutout outline" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{a.era}</span>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -145,28 +149,31 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
                 <Link
                   key={artist.name}
                   href={`/${lang}/artists/${artist.slug}`}
-                  className="p-5 sm:p-[22px_30px] border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)]"
+                  className="border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group no-underline text-[var(--ink)] flex flex-col overflow-hidden h-full min-h-0"
                 >
-                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 36px)', color: 'var(--red)', lineHeight: 1 }}>
-                    #{i + 1}
+                  <CardThumbnail src={artist.image_url} alt={artist.name} aspectClass="aspect-[5/3]" />
+                  <div className="p-5 sm:p-[22px_30px] flex flex-col flex-grow min-h-0">
+                    <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 36px)', color: 'var(--red)', lineHeight: 1 }}>
+                      #{i + 1}
+                    </div>
+                    <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 20px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+                      {artist.name}
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-[6px]">
+                      {artist.genres.map((style, styleIndex) => (
+                        <span key={styleIndex} className="bg-[var(--ink)] text-[var(--paper)] group-hover:bg-[var(--red)] group-hover:text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', padding: '2px 7px' }}>
+                          {style}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{description?.country || 'INTL'}</span>
+                      <span className="cutout outline" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{artist.era}</span>
+                    </div>
+                    <p className="mt-3" style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-muted)' }}>
+                      {lang === 'es' ? description?.es : description?.en}
+                    </p>
                   </div>
-                  <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 20px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                    {artist.name}
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-[6px]">
-                    {artist.genres.map((style, styleIndex) => (
-                      <span key={styleIndex} className="bg-[var(--ink)] text-[var(--paper)]" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', padding: '2px 7px' }}>
-                        {style}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{description?.country || 'INTL'}</span>
-                    <span className="cutout outline" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{artist.era}</span>
-                  </div>
-                  <p className="mt-3" style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-muted)' }}>
-                    {lang === 'es' ? description?.es : description?.en}
-                  </p>
                 </Link>
               )})}
             </div>
