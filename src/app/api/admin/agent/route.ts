@@ -62,7 +62,7 @@ CHECKLIST V2 (obligatorio antes de cerrar la respuesta):
 - Prioridad de fuentes: notas del editor > contexto web > conocimiento general.
 - No inventes charts, fechas exactas, premios, sellos, colaboraciones ni URLs sin base razonable.
 - slug EXACTO (kebab-case, solo a-z, 0-9, guiones): "${opts.slug}"
-- bio_es y bio_en: 12–18 párrafos cada una; separa párrafos con \\n\\n dentro del string JSON.
+- bio_es y bio_en: apunta normalmente a 10-16 parrafos cada una; solo alarga mas si hay base suficiente, y si la evidencia es limitada prioriza precision antes que longitud. Separa parrafos con \\n\\n dentro del string JSON.
 - Arrays sin duplicados ni strings vacíos; sin placeholders (TBD, N/A, unknown).
 - socials y website: solo URLs https presentes en contexto o notas; si no hay evidencia, {} y null.
 - image_url: null salvo URL https pública clara y estable en el contexto.
@@ -136,6 +136,16 @@ function normalizeArtist(obj: Record<string, unknown>, expectedSlug: string) {
   return out
 }
 
+function validateMinimal(obj: Record<string, unknown>): string[] {
+  const err: string[] = []
+  if (!obj.slug) err.push('slug')
+  if (!obj.name || !String(obj.name).trim()) err.push('name')
+  if (!obj.name_display || !String(obj.name_display).trim()) err.push('name_display')
+  if (!obj.bio_en || !String(obj.bio_en).trim()) err.push('bio_en')
+  if (!obj.bio_es || !String(obj.bio_es).trim()) err.push('bio_es')
+  return err
+}
+
 export async function POST(request: NextRequest) {
   const auth = await requireAdmin(request)
   if (!auth.ok) return auth.response
@@ -170,7 +180,7 @@ export async function POST(request: NextRequest) {
 
   const systemPrompt = loadSystemPrompt()
   const userPrompt = buildUserPrompt({ slug, artistName, notes, research })
-  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini'
+  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-5.4'
 
   const oaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -216,5 +226,13 @@ export async function POST(request: NextRequest) {
   }
 
   const normalized = normalizeArtist(parsed, slug)
+  const missing = validateMinimal(normalized)
+  if (missing.length) {
+    return NextResponse.json(
+      { error: `Faltan campos obligatorios: ${missing.join(', ')}` },
+      { status: 502 },
+    )
+  }
+
   return NextResponse.json(normalized)
 }

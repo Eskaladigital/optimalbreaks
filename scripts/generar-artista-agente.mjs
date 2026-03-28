@@ -119,7 +119,7 @@ CHECKLIST V2 (obligatorio antes de cerrar la respuesta):
 - Prioridad de fuentes: notas del editor > contexto web > conocimiento general.
 - No inventes charts, fechas exactas, premios, sellos, colaboraciones ni URLs sin base razonable.
 - slug EXACTO (kebab-case, solo a-z, 0-9, guiones): "${slug}"
-- bio_es y bio_en: 12–18 párrafos cada una; separa párrafos con \\n\\n dentro del string JSON.
+- bio_es y bio_en: apunta normalmente a 10-16 parrafos cada una; solo alarga mas si hay base suficiente, y si la evidencia es limitada prioriza precision antes que longitud. Separa parrafos con \\n\\n dentro del string JSON.
 - Arrays sin duplicados ni strings vacíos; sin placeholders (TBD, N/A, unknown).
 - socials y website: solo URLs https presentes en contexto o notas; si no hay evidencia, {} y null.
 - image_url: null salvo URL https pública clara y estable en el contexto.
@@ -159,7 +159,7 @@ async function openAiJson({ system, user }) {
   if (!key) {
     throw new Error('Falta OPENAI_API_KEY en .env.local')
   }
-  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini'
+  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-5.4'
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {

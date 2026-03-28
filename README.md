@@ -294,7 +294,7 @@ The browser **anon / publishable** key cannot be used for this write path. JWT k
 
 Draft a new `data/artists/<slug>.json` from a model using the same schema as above. Editable system prompt: [`scripts/prompts/artista-agente-system.txt`](scripts/prompts/artista-agente-system.txt).
 
-Requires **`OPENAI_API_KEY`** in `.env.local`. Optional **`SERPAPI_API_KEY`** (Google snippets via [SerpApi](https://serpapi.com)) for research context; if missing or invalid, the agent runs on model knowledge only.
+Requires **`OPENAI_API_KEY`** in `.env.local`. The agent defaults to **`gpt-5.4`** and you can override it with **`OPENAI_MODEL`**. Optional **`SERPAPI_API_KEY`** (Google snippets via [SerpApi](https://serpapi.com)) for research context; if missing or invalid, the agent runs on model knowledge only.
 
 ```bash
 npm run db:artist:agent -- plump-djs "Plump DJs"

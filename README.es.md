@@ -67,7 +67,7 @@ Genera un borrador `data/artists/<slug>.json` con el mismo esquema que `db:artis
 npm run db:artist:agent -- plump-djs "Plump DJs"
 ```
 
-Necesitas **`OPENAI_API_KEY`**. Opcional **`SERPAPI_API_KEY`** para contexto de búsqueda (SerpAPI). Luego revisa el JSON y ejecuta `npm run db:artist -- data/artists/<slug>.json`. Revisa siempre hechos antes de publicar.
+Necesitas **`OPENAI_API_KEY`**. El agente usa por defecto **`gpt-5.4`** y puedes sobrescribirlo con **`OPENAI_MODEL`**. Opcional **`SERPAPI_API_KEY`** para contexto de búsqueda (SerpAPI). Luego revisa el JSON y ejecuta `npm run db:artist -- data/artists/<slug>.json`. Revisa siempre hechos antes de publicar.
 
 ---
 
@@ -78,7 +78,7 @@ Copia `.env.local.example` → `.env.local`.
 - **Cliente (navegador):** `NEXT_PUBLIC_SUPABASE_URL` + **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** *o* **`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`** (`sb_publishable_*`).
 - **Solo servidor** (Storage admin, `db:artist` vía API): **`SUPABASE_SERVICE_ROLE_KEY`** *o* **`SUPABASE_SECRET_KEY`** (`sb_secret_*`). Nunca en `NEXT_PUBLIC_*`.
 - **Postgres** (opcional, para `db:migrate` / `db:seed`): ver comentarios en `.env.local.example`.
-- **Agente de bios** (opcional): `OPENAI_API_KEY`, y si quieres búsqueda web `SERPAPI_API_KEY` (ver `.env.local.example`).
+- **Agente de bios** (opcional): `OPENAI_API_KEY`, opcionalmente `OPENAI_MODEL`, y si quieres búsqueda web `SERPAPI_API_KEY` (ver `.env.local.example`).
 
 ---
 

@@ -15,6 +15,7 @@
     "db:artist:agent:all": "node scripts/generar-artista-agente.mjs --from-db",
     "db:timeline": "node scripts/sync-timeline-artists.mjs",
     "db:timeline:sql": "node scripts/sync-timeline-artists.mjs --sql",
+    "db:user-list": "node scripts/sync-user-list-artists.mjs",
     "media:upload": "node scripts/upload-storage-media.mjs"
   },
   "dependencies": {
