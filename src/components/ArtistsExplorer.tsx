@@ -3,8 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import CardThumbnail from '@/components/CardThumbnail'
-
-type ViewMode = 'large' | 'compact' | 'list'
+import ViewToggle, { type ViewMode } from '@/components/ViewToggle'
 
 interface ArtistRow {
   slug: string
@@ -49,7 +48,7 @@ const CATEGORY_MAP: Record<string, string> = {
 }
 
 export default function ArtistsExplorer({ artists, dict, lang }: Props) {
-  const [view, setView] = useState<ViewMode>('large')
+  const [view, setView] = useState<ViewMode>('compact')
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [activeGenre, setActiveGenre] = useState('')
@@ -114,17 +113,7 @@ export default function ArtistsExplorer({ artists, dict, lang }: Props) {
           />
         </div>
 
-        <div className="flex items-center gap-1 border-[3px] border-[var(--ink)] bg-[var(--paper)] p-[2px]">
-          <ViewBtn active={view === 'large'} onClick={() => setView('large')} label={dict.view_large}>
-            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="0.5" /><rect x="9" y="1" width="6" height="6" rx="0.5" /><rect x="1" y="9" width="6" height="6" rx="0.5" /><rect x="9" y="9" width="6" height="6" rx="0.5" /></svg>
-          </ViewBtn>
-          <ViewBtn active={view === 'compact'} onClick={() => setView('compact')} label={dict.view_compact}>
-            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="3.5" height="3.5" rx="0.3" /><rect x="6.25" y="1" width="3.5" height="3.5" rx="0.3" /><rect x="11.5" y="1" width="3.5" height="3.5" rx="0.3" /><rect x="1" y="6.25" width="3.5" height="3.5" rx="0.3" /><rect x="6.25" y="6.25" width="3.5" height="3.5" rx="0.3" /><rect x="11.5" y="6.25" width="3.5" height="3.5" rx="0.3" /><rect x="1" y="11.5" width="3.5" height="3.5" rx="0.3" /><rect x="6.25" y="11.5" width="3.5" height="3.5" rx="0.3" /><rect x="11.5" y="11.5" width="3.5" height="3.5" rx="0.3" /></svg>
-          </ViewBtn>
-          <ViewBtn active={view === 'list'} onClick={() => setView('list')} label={dict.view_list}>
-            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2.5" rx="0.3" /><rect x="1" y="6.75" width="14" height="2.5" rx="0.3" /><rect x="1" y="11.5" width="14" height="2.5" rx="0.3" /></svg>
-          </ViewBtn>
-        </div>
+        <ViewToggle view={view} setView={setView} labels={dict} />
       </div>
 
       {/* Category filters */}
@@ -172,22 +161,6 @@ export default function ArtistsExplorer({ artists, dict, lang }: Props) {
         <ListView artists={filtered} lang={lang} />
       )}
     </div>
-  )
-}
-
-/* ─── View Toggle Button ─── */
-
-function ViewBtn({ active, onClick, label, children }: { active: boolean; onClick: () => void; label: string; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      title={label}
-      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${active ? 'bg-[var(--ink)] text-[var(--paper)]' : 'text-[var(--ink)] hover:bg-[var(--ink)]/10'}`}
-      style={{ fontFamily: "'Courier Prime', monospace" }}
-    >
-      {children}
-      <span className="hidden sm:inline">{label}</span>
-    </button>
   )
 }
 

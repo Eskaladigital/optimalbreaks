@@ -9,6 +9,7 @@ import type { Mix } from '@/types/database'
 import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/seo'
 import CardThumbnail from '@/components/CardThumbnail'
+import MixesExplorer from '@/components/MixesExplorer'
 
 type FallbackMix = {
   type: string
@@ -112,41 +113,7 @@ export default async function MixesPage({ params }: { params: { lang: Locale } }
       </section>
       <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-[18px]">
-            {list.map((m) => (
-              <div
-                key={m.slug}
-                className="border-[3px] border-[var(--ink)] relative transition-all duration-150 bg-[var(--paper)] sm:hover:rotate-[-1deg] sm:hover:shadow-[6px_6px_0_var(--ink)] overflow-hidden group"
-              >
-                <CardThumbnail src={m.image_url} alt={m.title} aspectClass="aspect-[16/10]" />
-                <div className="p-5 sm:p-7 relative">
-                <div className="absolute -top-[6px] left-[20px] w-[60px] h-[18px] z-[1]" style={{ background: 'var(--tape)', transform: 'rotate(-2deg)' }} />
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="cutout red" style={{ margin: 0 }}>{m.mix_type?.replace('_', ' ')}</span>
-                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: '11px', color: 'var(--dim)' }}>
-                    {m.year} · {m.duration_minutes} min
-                  </span>
-                </div>
-                <div className="mt-3" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(14px, 2.5vw, 18px)', textTransform: 'uppercase', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
-                  {m.title}
-                </div>
-                <div className="mt-2" style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '14px', color: 'var(--red)' }}>
-                  {m.artist_name}
-                </div>
-                {m.embed_url && (
-                  <a href={m.embed_url} target="_blank" rel="noopener noreferrer" className="absolute bottom-3 right-3 bg-[var(--ink)] text-[var(--yellow)] no-underline hover:bg-[var(--red)] hover:text-white transition-colors" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '11px', letterSpacing: '2px', padding: '4px 12px', transform: 'rotate(2deg)' }}>
-                    ▶ PLAY
-                  </a>
-                )}
-                {!m.embed_url && (
-                  <div className="absolute bottom-3 right-3 bg-[var(--ink)] text-[var(--yellow)]" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '11px', letterSpacing: '2px', padding: '4px 12px', transform: 'rotate(2deg)' }}>
-                    ▶ {m.platform?.toUpperCase()}
-                  </div>
-                )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <MixesExplorer mixes={list} dict={dict.mixes} lang={lang} />
         ) : (
           <div className="space-y-8">
             <div className="max-w-[860px] p-5 sm:p-7 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">

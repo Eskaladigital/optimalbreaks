@@ -22,7 +22,12 @@
     "mixer": "MIXER",
     "crossfader": "CROSSFADER",
     "bpm": "BPM",
-    "marquee": ["BREAK THE BEAT", "BREAK THE RULES", "BREAK THE SILENCE", "BREAK EVERYTHING"],
+    "marquee": [
+      "BREAK THE BEAT",
+      "BREAK THE RULES",
+      "BREAK THE SILENCE",
+      "BREAK EVERYTHING"
+    ],
     "section_what": {
       "tag": "01 — THE GENRE",
       "title_1": "WHAT THE HELL IS",
@@ -36,12 +41,36 @@
       "title_1": "HISTORY OF",
       "title_2": "THE BREAK",
       "items": [
-        { "year": "1970", "title": "THE ORIGINS", "desc": "Kool Herc, the Bronx, block parties. The 'merry-go-round' technique over funk breaks plants the seed of hip-hop and electronic breakbeat." },
-        { "year": "1986", "title": "AMEN BREAK", "desc": "6 seconds of drums from The Winstons. The most sampled loop in history. The foundation of jungle, DnB and half the internet." },
-        { "year": "1990", "title": "UK RAVE CULTURE", "desc": "Illegal warehouses, pirate radios. Breakbeat conquers the British rave scene without asking anyone's permission." },
-        { "year": "1997", "title": "BIG BEAT EXPLODES", "desc": "The Prodigy, Chemical Brothers, Fatboy Slim. Breaks fill stadiums, MTV and charts worldwide. The golden era." },
-        { "year": "2003", "title": "NU SKOOL ERA", "desc": "Stanton Warriors, Plump DJs, Freq Nasty. The break gets polished: cleaner, fatter, built to destroy dancefloors." },
-        { "year": "NOW", "title": "THE RESURGENCE", "desc": "Fusion with UK garage, tech house, bass music. New producers, new labels. The break was never dead, it was just reloading." }
+        {
+          "year": "1970",
+          "title": "THE ORIGINS",
+          "desc": "Kool Herc, the Bronx, block parties. The 'merry-go-round' technique over funk breaks plants the seed of hip-hop and electronic breakbeat."
+        },
+        {
+          "year": "1986",
+          "title": "AMEN BREAK",
+          "desc": "6 seconds of drums from The Winstons. The most sampled loop in history. The foundation of jungle, DnB and half the internet."
+        },
+        {
+          "year": "1990",
+          "title": "UK RAVE CULTURE",
+          "desc": "Illegal warehouses, pirate radios. Breakbeat conquers the British rave scene without asking anyone's permission."
+        },
+        {
+          "year": "1997",
+          "title": "BIG BEAT EXPLODES",
+          "desc": "The Prodigy, Chemical Brothers, Fatboy Slim. Breaks fill stadiums, MTV and charts worldwide. The golden era."
+        },
+        {
+          "year": "2003",
+          "title": "NU SKOOL ERA",
+          "desc": "Stanton Warriors, Plump DJs, Freq Nasty. The break gets polished: cleaner, fatter, built to destroy dancefloors."
+        },
+        {
+          "year": "NOW",
+          "title": "THE RESURGENCE",
+          "desc": "Fusion with UK garage, tech house, bass music. New producers, new labels. The break was never dead, it was just reloading."
+        }
       ]
     },
     "section_artists": {
@@ -62,14 +91,46 @@
       "title_2": "THREAD",
       "intro": "Each section goes deeper into the map — from the Bronx and UK rave to Andalusia, Australia and the Beatport era. Browse, bookmark and come back; the archive grows.",
       "items": [
-        { "href": "/history", "label": "History", "hint": "Origins, UK, US, Andalusia, digital" },
-        { "href": "/artists", "label": "Artists", "hint": "Profiles, tags, timelines" },
-        { "href": "/scenes", "label": "Scenes", "hint": "Territories and local context" },
-        { "href": "/labels", "label": "Labels", "hint": "Sound infrastructure" },
-        { "href": "/events", "label": "Events", "hint": "Agenda and archive" },
-        { "href": "/blog", "label": "Blog", "hint": "Essays and scene memory" },
-        { "href": "/mixes", "label": "Mixes", "hint": "Sets and sonic continuity" },
-        { "href": "/about", "label": "About", "hint": "Manifesto and contact" }
+        {
+          "href": "/history",
+          "label": "History",
+          "hint": "Origins, UK, US, Andalusia, digital"
+        },
+        {
+          "href": "/artists",
+          "label": "Artists",
+          "hint": "Profiles, tags, timelines"
+        },
+        {
+          "href": "/scenes",
+          "label": "Scenes",
+          "hint": "Territories and local context"
+        },
+        {
+          "href": "/labels",
+          "label": "Labels",
+          "hint": "Sound infrastructure"
+        },
+        {
+          "href": "/events",
+          "label": "Events",
+          "hint": "Agenda and archive"
+        },
+        {
+          "href": "/blog",
+          "label": "Blog",
+          "hint": "Essays and scene memory"
+        },
+        {
+          "href": "/mixes",
+          "label": "Mixes",
+          "hint": "Sets and sonic continuity"
+        },
+        {
+          "href": "/about",
+          "label": "About",
+          "hint": "Manifesto and contact"
+        }
       ]
     },
     "timeline_footer": "Full history: chapters, nuance and sources",
@@ -89,7 +150,15 @@
       "bpm": "BPM",
       "subgenres": "SUBGENRES"
     },
-    "genres": ["Big Beat", "Nu Skool", "Jungle", "DnB", "Acid Breaks", "Progressive", "Breakstep"]
+    "genres": [
+      "Big Beat",
+      "Nu Skool",
+      "Jungle",
+      "DnB",
+      "Acid Breaks",
+      "Progressive",
+      "Breakstep"
+    ]
   },
   "history": {
     "title": "History",
@@ -133,7 +202,10 @@
           "In parallel, breakbeat’s fall as the club’s \"headline\" genre was global: in Andalusia a brutal local shock coincided with a wider shift toward other bass and electronic sounds."
         ],
         "links": [
-          { "label": "Break Nation on FilmAffinity", "href": "https://www.filmaffinity.com/es/film126766.html" }
+          {
+            "label": "Break Nation on FilmAffinity",
+            "href": "https://www.filmaffinity.com/es/film126766.html"
+          }
         ]
       },
       "australian": {
@@ -161,7 +233,10 @@
           "YouTube, Mixcloud and SoundCloud inherited part of radio and mixtape culture: breakbeat remains niche culture with real searches, new charts and producers remixing the language with UK bass and current hybrids."
         ],
         "links": [
-          { "label": "Breaks / Breakbeat / UK Bass on Beatport", "href": "https://www.beatport.com/genre/breaks-breakbeat-uk-bass/9" }
+          {
+            "label": "Breaks / Breakbeat / UK Bass on Beatport",
+            "href": "https://www.beatport.com/genre/breaks-breakbeat-uk-bass/9"
+          }
         ]
       }
     }
@@ -196,7 +271,10 @@
   },
   "labels": {
     "title": "Labels",
-    "subtitle": "Labels, catalogues and infrastructure: who shaped and sustained the sound"
+    "subtitle": "Labels, catalogues and infrastructure: who shaped and sustained the sound",
+    "view_large": "Large",
+    "view_compact": "Compact",
+    "view_list": "List"
   },
   "events": {
     "title": "Events",
@@ -207,11 +285,17 @@
       "club": "Club Nights",
       "past": "Past Iconic",
       "upcoming": "Upcoming"
-    }
+    },
+    "view_large": "Large",
+    "view_compact": "Compact",
+    "view_list": "List"
   },
   "scenes": {
     "title": "Scenes",
-    "subtitle": "The territorial map of breakbeat: origins, countries, regions and local ecosystems"
+    "subtitle": "The territorial map of breakbeat: origins, countries, regions and local ecosystems",
+    "view_large": "Large",
+    "view_compact": "Compact",
+    "view_list": "List"
   },
   "blog": {
     "title": "Blog",
@@ -219,7 +303,10 @@
   },
   "mixes": {
     "title": "Mixes & Sets",
-    "subtitle": "Essential sets, radio, podcasts and the scene’s digital continuity"
+    "subtitle": "Essential sets, radio, podcasts and the scene’s digital continuity",
+    "view_large": "Large",
+    "view_compact": "Compact",
+    "view_list": "List"
   },
   "about": {
     "title": "About",
@@ -301,10 +388,22 @@
     "legal_title": "Legal",
     "social_title": "Social",
     "social": [
-      { "label": "Instagram", "href": "https://www.instagram.com/optimalbreaks/" },
-      { "label": "YouTube", "href": "https://www.youtube.com/@optimalbreaks" },
-      { "label": "X", "href": "https://x.com/optimalbreaks" },
-      { "label": "SoundCloud", "href": "https://soundcloud.com/optimalbreaks" }
+      {
+        "label": "Instagram",
+        "href": "https://www.instagram.com/optimalbreaks/"
+      },
+      {
+        "label": "YouTube",
+        "href": "https://www.youtube.com/@optimalbreaks"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com/optimalbreaks"
+      },
+      {
+        "label": "SoundCloud",
+        "href": "https://soundcloud.com/optimalbreaks"
+      }
     ]
   }
 }

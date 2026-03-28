@@ -7,9 +7,9 @@ import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
 import type { Scene } from '@/types/database'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
 import CardThumbnail from '@/components/CardThumbnail'
+import ScenesExplorer from '@/components/ScenesExplorer'
 
 type FallbackScene = {
   name_es: string
@@ -92,24 +92,7 @@ export default async function ScenesPage({ params }: { params: { lang: Locale } 
       </section>
       <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
-            {list.map((s) => (
-              <Link
-                key={s.slug}
-                href={`/${lang}/scenes/${s.slug}`}
-                className="border-r-[3px] border-b-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] no-underline text-[var(--ink)] max-md:!border-r-0 flex flex-col overflow-hidden group min-h-0"
-              >
-                <CardThumbnail src={s.image_url} alt={lang === 'es' ? s.name_es : s.name_en} aspectClass="aspect-[5/3]" />
-                <div className="p-6 sm:p-8">
-                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '14px', color: 'var(--red)' }}>{s.era}</div>
-                  <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                    {lang === 'es' ? s.name_es : s.name_en}
-                  </div>
-                  <div className="mt-1" style={{ fontSize: '14px', color: 'var(--dim)' }}>{s.region || s.country}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <ScenesExplorer scenes={list} dict={dict.scenes} lang={lang} />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-[var(--ink)]">
             {FALLBACK_SCENES.map((scene) => (

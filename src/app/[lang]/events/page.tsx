@@ -7,9 +7,9 @@ import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
 import type { BreakEvent } from '@/types/database'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
 import CardThumbnail from '@/components/CardThumbnail'
+import EventsExplorer from '@/components/EventsExplorer'
 
 type FallbackEvent = {
   date_es: string
@@ -125,32 +125,7 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
       </section>
       <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-[18px]">
-            {list.map((e) => (
-              <Link
-                key={e.slug}
-                href={`/${lang}/events/${e.slug}`}
-                className="border-[3px] border-[var(--ink)] relative transition-all duration-150 bg-[var(--paper)] sm:hover:rotate-[-1deg] sm:hover:shadow-[6px_6px_0_var(--ink)] no-underline text-[var(--ink)] block overflow-hidden group"
-              >
-                <CardThumbnail src={e.image_url} alt={e.name} aspectClass="aspect-[16/10]" frameClass="border-b-[3px] border-[var(--ink)]" />
-                <div className="p-5 sm:p-7 relative">
-                  <div className="absolute -top-[6px] right-[25px] w-[50px] sm:w-[60px] h-[16px] sm:h-[18px] z-[1]" style={{ background: 'var(--tape)', transform: 'rotate(2deg)' }} />
-                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: 'clamp(13px, 2vw, 16px)', color: 'var(--red)' }}>
-                    {e.date_start || 'TBA'}
-                  </div>
-                  <div className="mt-2 leading-none" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(18px, 3vw, 24px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                    {e.name}
-                  </div>
-                  <div className="mt-2" style={{ fontSize: 'clamp(12px, 2vw, 14px)', color: 'var(--text-muted)' }}>
-                    {e.venue ? `${e.venue} — ` : ''}{e.city}, {e.country}
-                  </div>
-                  <div className="absolute bottom-3 right-3 bg-[var(--red)] text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', padding: '3px 10px', transform: 'rotate(3deg)' }}>
-                    {e.event_type?.replace('_', ' ')}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <EventsExplorer events={list} dict={dict.events} lang={lang} />
         ) : (
           <div className="space-y-8">
             <div className="max-w-[860px] p-5 sm:p-7 border-4 border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]">

@@ -196,7 +196,10 @@
   },
   "labels": {
     "title": "Sellos",
-    "subtitle": "Sellos, catalogos e infraestructura: quien dio forma y continuidad al sonido"
+    "subtitle": "Sellos, catalogos e infraestructura: quien dio forma y continuidad al sonido",
+    "view_large": "Grande",
+    "view_compact": "Compacto",
+    "view_list": "Lista"
   },
   "events": {
     "title": "Eventos",
@@ -207,11 +210,17 @@
       "club": "Club Nights",
       "past": "Históricos",
       "upcoming": "Próximos"
-    }
+    },
+    "view_large": "Grande",
+    "view_compact": "Compacto",
+    "view_list": "Lista"
   },
   "scenes": {
     "title": "Escenas",
-    "subtitle": "Mapa territorial del breakbeat: origenes, paises, regiones y ecosistemas locales"
+    "subtitle": "Mapa territorial del breakbeat: origenes, paises, regiones y ecosistemas locales",
+    "view_large": "Grande",
+    "view_compact": "Compacto",
+    "view_list": "Lista"
   },
   "blog": {
     "title": "Blog",
@@ -219,7 +228,10 @@
   },
   "mixes": {
     "title": "Mixes y Sets",
-    "subtitle": "Sets esenciales, radio, podcasts y continuidad digital de la escena"
+    "subtitle": "Sets esenciales, radio, podcasts y continuidad digital de la escena",
+    "view_large": "Grande",
+    "view_compact": "Compacto",
+    "view_list": "Lista"
   },
   "about": {
     "title": "Sobre",
