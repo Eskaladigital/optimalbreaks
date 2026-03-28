@@ -2,7 +2,7 @@
 // OPTIMAL BREAKS — Artist Detail Page
 // ============================================
 
-import { createServerSupabase } from '@/lib/supabase-server'
+import { createSimpleSupabase } from '@/lib/supabase'
 import { detailPageMetadata, siteNameForLang, SITE_URL } from '@/lib/seo'
 import { splitBioParagraphs } from '@/lib/bio-format'
 import { sanitizeSlug } from '@/lib/security'
@@ -52,7 +52,7 @@ function buildArtistKeywords(artist: ArtistSeoRow, lang: Locale): string[] {
 }
 
 export async function generateStaticParams() {
-  const supabase = createServerSupabase()
+  const supabase = createSimpleSupabase()
   const { data } = await supabase.from('artists').select('slug') as { data: { slug: string }[] | null }
   const slugs = data?.map((a) => a.slug).filter(Boolean) || []
   return i18n.locales.flatMap((lang) =>
@@ -63,7 +63,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug: rawSlug } = await params
   const slug = sanitizeSlug(rawSlug)
-  const supabase = createServerSupabase()
+  const supabase = createSimpleSupabase()
   const { data: raw } = await supabase
     .from('artists')
     .select('name, bio_en, bio_es, image_url, styles, country, era')
@@ -97,7 +97,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ArtistDetailPage({ params }: Props) {
   const { lang, slug: rawSlug } = await params
   const slug = sanitizeSlug(rawSlug)
-  const supabase = createServerSupabase()
+  const supabase = createSimpleSupabase()
   const { data: rawArtist } = await supabase
     .from('artists')
     .select('*')

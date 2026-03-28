@@ -44,7 +44,7 @@ function buildUserPrompt(opts: {
   notes?: string
   research: string
 }): string {
-  let s = `Genera el JSON del artista.\n\nslug (kebab-case): ${opts.slug}\nNombre artístico principal: ${opts.artistName}\n`
+  let s = `Genera el JSON del artista siguiendo el prompt de sistema V2 (redactor Optimal Breaks).\n\nslug (kebab-case): ${opts.slug}\nNombre artístico principal: ${opts.artistName}\n`
 
   if (opts.research) {
     s += `\nCONTEXTO DE BÚSQUEDA WEB (puede contener errores; contrasta y no inventes cifras exactas sin soporte):\n---\n${opts.research}\n---\n`
@@ -53,11 +53,48 @@ function buildUserPrompt(opts: {
   }
 
   if (opts.notes) {
-    s += `\nNOTAS DEL EDITOR (prioridad alta si entran en conflicto con lo anterior):\n---\n${opts.notes}\n---\n`
+    s += `\nNOTAS DEL EDITOR (máxima prioridad si hay conflicto con web o modelo):\n---\n${opts.notes}\n---\n`
   }
 
-  s += `\nRecuerda: bio_es y bio_en con párrafos separados por \\n\\n (doble salto de línea dentro del string JSON).\nslug debe ser exactamente: "${opts.slug}"\n`
+  s += `
+CHECKLIST V2 (obligatorio antes de cerrar la respuesta):
+- Solo un objeto JSON parseable; sin markdown, sin texto fuera del JSON, sin campos extra.
+- Prioridad de fuentes: notas del editor > contexto web > conocimiento general.
+- No inventes charts, fechas exactas, premios, sellos, colaboraciones ni URLs sin base razonable.
+- slug EXACTO (kebab-case, solo a-z, 0-9, guiones): "${opts.slug}"
+- bio_es y bio_en: 12–18 párrafos cada una; separa párrafos con \\n\\n dentro del string JSON.
+- Arrays sin duplicados ni strings vacíos; sin placeholders (TBD, N/A, unknown).
+- socials y website: solo URLs https presentes en contexto o notas; si no hay evidencia, {} y null.
+- image_url: null salvo URL https pública clara y estable en el contexto.
+`
   return s
+}
+
+function uniqueNonEmptyStrings(arr: unknown): string[] {
+  if (!Array.isArray(arr)) return []
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const x of arr) {
+    const t = String(x ?? '').trim()
+    if (!t) continue
+    const k = t.toLowerCase()
+    if (seen.has(k)) continue
+    seen.add(k)
+    out.push(t)
+  }
+  return out
+}
+
+function normalizeSocials(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+  const out: Record<string, string> = {}
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const key = String(k).trim().toLowerCase()
+    const url = String(v ?? '').trim()
+    if (!key || !url.startsWith('https://')) continue
+    if (!out[key]) out[key] = url
+  }
+  return out
 }
 
 function normalizeArtist(obj: Record<string, unknown>, expectedSlug: string) {
@@ -69,21 +106,29 @@ function normalizeArtist(obj: Record<string, unknown>, expectedSlug: string) {
       .replace(/^-|-$/g, '') || expectedSlug
   if (!VALID_CATEGORIES.includes(String(out.category))) out.category = 'current'
   out.name_display = String(out.name_display || out.name || '').toUpperCase()
-  out.styles = Array.isArray(out.styles) ? out.styles : []
-  out.essential_tracks = Array.isArray(out.essential_tracks) ? out.essential_tracks : []
-  out.recommended_mixes = Array.isArray(out.recommended_mixes) ? out.recommended_mixes : []
-  out.related_artists = Array.isArray(out.related_artists) ? out.related_artists : []
-  out.labels_founded = Array.isArray(out.labels_founded) ? out.labels_founded : []
+  out.styles = uniqueNonEmptyStrings(out.styles)
+  out.essential_tracks = uniqueNonEmptyStrings(out.essential_tracks)
+  out.recommended_mixes = uniqueNonEmptyStrings(out.recommended_mixes)
+  out.related_artists = uniqueNonEmptyStrings(out.related_artists)
+  out.labels_founded = uniqueNonEmptyStrings(out.labels_founded)
   out.key_releases = Array.isArray(out.key_releases) ? out.key_releases : []
-  out.socials =
-    out.socials && typeof out.socials === 'object' && !Array.isArray(out.socials)
-      ? out.socials
-      : {}
-  if (out.website === undefined) out.website = null
-  if (out.real_name === undefined) out.real_name = null
-  if (out.image_url === undefined) out.image_url = null
+  out.socials = normalizeSocials(out.socials)
+  const web = out.website === undefined ? null : out.website
+  out.website =
+    typeof web === 'string' && web.trim().startsWith('https://') ? web.trim() : null
+  const rn = out.real_name
+  if (rn === undefined || rn === null) out.real_name = null
+  else {
+    const t = String(rn).trim()
+    out.real_name = t || null
+  }
+  const img = out.image_url
+  out.image_url =
+    typeof img === 'string' && img.trim().startsWith('https://') ? img.trim() : null
   if (typeof out.is_featured !== 'boolean') out.is_featured = false
-  if (typeof out.sort_order !== 'number') out.sort_order = 50
+  let so = typeof out.sort_order === 'number' ? out.sort_order : 50
+  if (!Number.isFinite(so)) so = 50
+  out.sort_order = Math.min(200, Math.max(1, Math.round(so)))
   for (const kr of out.key_releases as Record<string, unknown>[]) {
     if (typeof kr.year !== 'number') kr.year = 2000
     if (kr.note === undefined) kr.note = ''
@@ -135,7 +180,7 @@ export async function POST(request: NextRequest) {
     },
     body: JSON.stringify({
       model,
-      temperature: 0.35,
+      temperature: 0.28,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: systemPrompt },
