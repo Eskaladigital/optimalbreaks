@@ -38,6 +38,15 @@ function buildJsonLd(artist: Artist, lang: Locale, slug: string) {
   }
 }
 
+/** Normaliza nombres para enlazar con filas de BD (apóstrofos, espacios). */
+function normalizeForEntityMatch(s: string): string {
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/[''´`]/g, '')
+    .replace(/\s+/g, ' ')
+}
+
 function buildArtistKeywords(artist: ArtistSeoRow, lang: Locale): string[] {
   const base = lang === 'es'
     ? ['breakbeat', 'artista', 'DJ', 'productor', 'musica electronica']
@@ -125,6 +134,27 @@ export default async function ArtistDetailPage({ params }: Props) {
         </div>
       </div>
     )
+  }
+
+  const [{ data: labelRows }, { data: allArtistsForLinks }] = await Promise.all([
+    supabase.from('labels').select('name, slug'),
+    supabase.from('artists').select('name, name_display, slug'),
+  ])
+
+  const labelSlugByName = new Map<string, string>()
+  for (const row of labelRows ?? []) {
+    const key = normalizeForEntityMatch(row.name)
+    if (key && !labelSlugByName.has(key)) labelSlugByName.set(key, row.slug)
+  }
+
+  const artistSlugByName = new Map<string, string>()
+  for (const row of allArtistsForLinks ?? []) {
+    const k1 = normalizeForEntityMatch(row.name)
+    if (k1 && !artistSlugByName.has(k1)) artistSlugByName.set(k1, row.slug)
+    if (row.name_display) {
+      const k2 = normalizeForEntityMatch(row.name_display)
+      if (k2 && !artistSlugByName.has(k2)) artistSlugByName.set(k2, row.slug)
+    }
   }
 
   const bio = lang === 'es' ? artist.bio_es : artist.bio_en
@@ -237,11 +267,35 @@ export default async function ArtistDetailPage({ params }: Props) {
                   {lang === 'es' ? 'SELLOS FUNDADOS' : 'LABELS FOUNDED'}
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {labelsArr.map((label, i) => (
-                    <span key={i} className="bg-[var(--red)] text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 8px', display: 'inline-block' }}>
-                      {label}
-                    </span>
-                  ))}
+                  {labelsArr.map((labelText, i) => {
+                    const labelSlug = labelSlugByName.get(normalizeForEntityMatch(labelText))
+                    const chipStyle = {
+                      fontFamily: "'Courier Prime', monospace",
+                      fontWeight: 700,
+                      fontSize: '10px',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase' as const,
+                      padding: '3px 8px',
+                      display: 'inline-block' as const,
+                    }
+                    if (labelSlug) {
+                      return (
+                        <Link
+                          key={i}
+                          href={`/${lang}/labels/${labelSlug}`}
+                          className="bg-[var(--red)] text-white hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--yellow)] transition-[filter]"
+                          style={chipStyle}
+                        >
+                          {labelText}
+                        </Link>
+                      )
+                    }
+                    return (
+                      <span key={i} className="bg-[var(--red)] text-white" style={chipStyle}>
+                        {labelText}
+                      </span>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -253,11 +307,32 @@ export default async function ArtistDetailPage({ params }: Props) {
                   {lang === 'es' ? 'ARTISTAS RELACIONADOS' : 'RELATED ARTISTS'}
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {artist.related_artists.map((name: string, i: number) => (
-                    <span key={i} className="py-1 border-b border-dashed border-white/10 block w-full" style={{ fontFamily: "'Courier Prime', monospace", fontSize: '12px', color: 'rgba(232,220,200,0.6)' }}>
-                      {name}
-                    </span>
-                  ))}
+                  {artist.related_artists.map((relatedName: string, i: number) => {
+                    const relatedSlug = artistSlugByName.get(normalizeForEntityMatch(relatedName))
+                    const rowClass = 'py-1 border-b border-dashed border-white/10 block w-full'
+                    const rowStyle = {
+                      fontFamily: "'Courier Prime', monospace",
+                      fontSize: '12px',
+                      color: 'rgba(232,220,200,0.6)',
+                    }
+                    if (relatedSlug && relatedSlug !== slug) {
+                      return (
+                        <Link
+                          key={i}
+                          href={`/${lang}/artists/${relatedSlug}`}
+                          className={`${rowClass} text-[var(--cyan)] hover:text-white hover:underline transition-colors`}
+                          style={{ fontFamily: "'Courier Prime', monospace", fontSize: '12px' }}
+                        >
+                          {relatedName}
+                        </Link>
+                      )
+                    }
+                    return (
+                      <span key={i} className={rowClass} style={rowStyle}>
+                        {relatedName}
+                      </span>
+                    )
+                  })}
                 </div>
               </div>
             )}

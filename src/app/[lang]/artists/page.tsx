@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { staticPageMetadata } from '@/lib/seo'
 import { ARTIST_ERAS, FEATURED_ARTISTS, artistSlug } from '@/lib/artists-timeline'
 import CardThumbnail from '@/components/CardThumbnail'
+import ArtistsExplorer from '@/components/ArtistsExplorer'
 
 const FEATURED_ARTIST_DESCRIPTIONS: Record<string, { es: string; en: string; country: string }> = {
   'DJ KOOL HERC': {
@@ -81,8 +82,6 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
     'slug' | 'name' | 'name_display' | 'country' | 'category' | 'styles' | 'era' | 'is_featured' | 'sort_order' | 'image_url'
   >
   const list = (artists || []) as ArtistListRow[]
-  const filters = Object.entries(dict.artists.filters) as [string, string][]
-
   return (
     <div className="lined min-h-screen">
       <section className="px-4 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
@@ -94,45 +93,11 @@ export default async function ArtistsPage({ params }: { params: { lang: Locale }
         <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '17px', lineHeight: 1.8, maxWidth: '700px', color: 'var(--dim)' }}>
           {dict.artists.subtitle}
         </p>
-        <div className="flex flex-wrap gap-2 mt-8">
-          {filters.map(([key, label]) => (
-            <span key={key} className={`cutout ${key === 'all' ? 'red' : 'outline'}`}>{label}</span>
-          ))}
-        </div>
       </section>
 
       <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 border-4 border-[var(--ink)]">
-            {list.map((a, i) => (
-              <Link
-                key={a.slug}
-                href={`/${lang}/artists/${a.slug}`}
-                className="border-b-[3px] sm:border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group no-underline text-[var(--ink)] flex flex-col overflow-hidden h-full min-h-0"
-              >
-                <CardThumbnail src={a.image_url} alt={a.name_display || a.name} aspectClass="aspect-[5/3]" />
-                <div className="p-5 sm:p-[22px_30px] flex flex-col flex-grow min-h-0">
-                  <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 36px)', color: 'var(--red)', lineHeight: 1 }}>
-                    #{i + 1}
-                  </div>
-                  <div className="mt-2" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(16px, 3vw, 20px)', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
-                    {a.name_display || a.name}
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-[6px]">
-                    {a.styles?.map((s: string, si: number) => (
-                      <span key={si} className="bg-[var(--ink)] text-[var(--paper)] group-hover:bg-[var(--red)] group-hover:text-white" style={{ fontFamily: "'Courier Prime', monospace", fontWeight: 700, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', padding: '2px 7px' }}>
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <span className="cutout fill" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{a.country}</span>
-                    <span className="cutout outline" style={{ fontSize: '8px', padding: '1px 6px', margin: 0 }}>{a.era}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <ArtistsExplorer artists={list} dict={dict.artists} lang={lang} />
         ) : (
           <div className="space-y-8">
             <div className="max-w-[860px]">

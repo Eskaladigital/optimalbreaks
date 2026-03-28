@@ -182,7 +182,18 @@
       "us": "Artistas US",
       "andalusia": "Andaluces",
       "current": "Actuales"
-    }
+    },
+    "search_placeholder": "Buscar artista…",
+    "view_large": "Grande",
+    "view_compact": "Compacto",
+    "view_list": "Lista",
+    "filter_genre": "Género",
+    "filter_country": "País",
+    "filter_era": "Década",
+    "filter_category": "Categoría",
+    "clear_filters": "Limpiar filtros",
+    "results_count": "{count} artistas",
+    "no_matches": "Ningún artista coincide con los filtros"
   },
   "labels": {
     "title": "Sellos",

@@ -373,6 +373,8 @@ Files under `supabase/migrations/` (apply in lexical order):
 | `npm run db:seed` | Run `002_seed_data.sql` only (Postgres). |
 | `npm run db:verify` | Row-count sanity check via **Supabase HTTP API** (`NEXT_PUBLIC_SUPABASE_ANON_KEY` or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). |
 | `npm run db:artist:agent -- <slug> "Name"` | Generate `data/artists/<slug>.json` with OpenAI (+ optional SerpAPI). |
+| `npm run db:timeline` | Insert **missing** artists from `src/lib/artists-timeline.ts` (`ARTIST_ERAS`, same names as `/artists`) via **Supabase API** (service/secret key). Skips slugs already in `artists`. |
+| `npm run db:timeline:sql` | Regenerate `009_artists_from_artist_eras_timeline.sql` (optional; for migrations without running the script against prod). |
 
 ---
 

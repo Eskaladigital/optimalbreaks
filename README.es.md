@@ -35,6 +35,14 @@ npm run db:artist -- data/artists/tu-slug.json
 
 El script hace **UPSERT por `slug`**: si el artista existe, lo actualiza; si no, lo inserta.
 
+Para rellenar la base con **todos los nombres de la cronología por lustros** de la página `/artists` (mismo origen que `src/lib/artists-timeline.ts`), sin pegar SQL en el editor:
+
+```bash
+npm run db:timeline
+```
+
+Usa la **API de Supabase** con la clave de servicio y solo **inserta** filas cuyo `slug` aún no exista. Opcional: `npm run db:timeline:sql` regenera la migración `009_*.sql` por si quieres versionarla.
+
 ### Cómo se conecta el script
 
 | Modo | Cuándo |

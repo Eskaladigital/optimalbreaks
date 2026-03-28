@@ -182,7 +182,18 @@
       "us": "US Artists",
       "andalusia": "Andalusian",
       "current": "Current"
-    }
+    },
+    "search_placeholder": "Search artist…",
+    "view_large": "Large",
+    "view_compact": "Compact",
+    "view_list": "List",
+    "filter_genre": "Genre",
+    "filter_country": "Country",
+    "filter_era": "Decade",
+    "filter_category": "Category",
+    "clear_filters": "Clear filters",
+    "results_count": "{count} artists",
+    "no_matches": "No artists match the current filters"
   },
   "labels": {
     "title": "Labels",
