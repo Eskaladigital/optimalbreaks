@@ -21,6 +21,7 @@ El **agente de fichas de artista** genera o reescribe un archivo JSON con el esq
 | `src/app/api/admin/agent/route.ts` | Misma lógica vía POST (panel admin, requiere admin) |
 | `scripts/actualizar-artista.mjs` | UPSERT del JSON → Supabase |
 | `scripts/ensure-artist-json-in-db.mjs` | Comprueba JSON vs fila en BD y sincroniza si difiere |
+| `src/lib/artist-entity-match.ts` | En fichas públicas: enlazar nombres de `related_artists` a slugs del directorio |
 
 ### Variables de entorno
 
@@ -60,6 +61,8 @@ Opciones del batch:
 
 Cada artista implica llamadas a **OpenAI** (y opcionalmente **SerpAPI**). Un lote grande puede llevar **horas** y un **coste notable** en API.
 
+**Registrar el progreso del batch:** en terminal puedes redirigir la salida estándar a un archivo (por ejemplo `agent-batch-log.txt` en la raíz del repo) para conservar el índice y los slugs procesados si se interrumpe la sesión.
+
 **Subir JSON → Supabase (uno):**
 
 ```bash
@@ -75,8 +78,22 @@ npm run db:artist:ensure -- data/artists/<slug>.json
 **Sincronizar muchos JSON** (PowerShell, desde la raíz del repo):
 
 ```powershell
-Get-ChildItem "data\artists\*.json" | ForEach-Object { node scripts/actualizar-artista.mjs $_.FullName }
+Get-ChildItem "data\artists\*.json" | ForEach-Object { npm run db:artist -- ("data/artists/" + $_.Name) }
 ```
+
+Git Bash:
+
+```bash
+for f in data/artists/*.json; do npm run db:artist -- "$f"; done
+```
+
+### Publicación en la web y caché
+
+La app **no** lee los archivos de `data/artists/` en runtime: solo **Supabase**. Tras `db:artist`, la ficha debería reflejar la BD en cuanto el proyecto desplegado use la **misma** `NEXT_PUBLIC_SUPABASE_URL`.
+
+Si el panel de Supabase está bien pero la URL pública enseña texto viejo: comprobar que Vercel apunta al mismo proyecto; las rutas **`/artists`** están configuradas para **no cachear** HTML de forma agresiva (segment layout `revalidate` / `fetchCache`, cabeceras `no-store` en `next.config.js`, y el PWA **`public/sw.js`** no almacena HTML de URLs que contienen `/artists`). Tras un deploy que actualice el SW, conviene recarga forzada o ventana privada en dispositivos que ya tenían caché antigua.
+
+Las filas creadas por **`npm run db:user-list`** llevan una **bio placeholder** corta hasta que sustituyes con agente + `db:artist` (o admin).
 
 ### Flujo recomendado
 
@@ -91,6 +108,11 @@ El prompt pide prudencia: sin inventar URLs, distinguir sellos **fundados** de s
 ### Panel admin
 
 Ruta de API: `POST /api/admin/agent` (cuerpo JSON con `slug`, `artistName`, notas opcionales, `search` boolean). Requiere sesión de administrador. Misma idea que el CLI: respuesta JSON del modelo; no sustituye al `db:artist` para persistir en masa.
+
+### Ver también (resto del repo)
+
+- Esquema de base de datos, migraciones SQL (incl. **`010`–`011`** organizaciones / Raveart) y tabla de scripts: [**README.md**](../README.md) · resumen ES: [**README.es.md**](../README.es.md).
+- Subir un archivo local al bucket **`media`**: `npm run media:upload` → [`scripts/upload-storage-media.mjs`](../scripts/upload-storage-media.mjs).
 
 ---
 
@@ -111,6 +133,7 @@ The **artist profile agent** generates or rewrites a JSON file matching the Supa
 | `src/app/api/admin/agent/route.ts` | Same logic via POST (admin UI, admin auth required) |
 | `scripts/actualizar-artista.mjs` | UPSERT JSON → Supabase |
 | `scripts/ensure-artist-json-in-db.mjs` | Compare JSON vs DB row and sync if different |
+| `src/lib/artist-entity-match.ts` | Public artist pages: map `related_artists` names to internal slugs |
 
 ### Environment variables
 
@@ -150,6 +173,8 @@ Batch flags:
 
 Each row triggers **OpenAI** (and optionally **SerpAPI**). Large batches can take **hours** and cost real money.
 
+**Log batch progress:** redirect stdout to a file (e.g. `agent-batch-log.txt` at the repo root) so you keep a record of index and slugs if the run stops mid-way.
+
 **Push JSON → Supabase (one file):**
 
 ```bash
@@ -165,8 +190,22 @@ npm run db:artist:ensure -- data/artists/<slug>.json
 **Bulk sync many JSON files** (PowerShell, repo root):
 
 ```powershell
-Get-ChildItem "data\artists\*.json" | ForEach-Object { node scripts/actualizar-artista.mjs $_.FullName }
+Get-ChildItem "data\artists\*.json" | ForEach-Object { npm run db:artist -- ("data/artists/" + $_.Name) }
 ```
+
+Git Bash:
+
+```bash
+for f in data/artists/*.json; do npm run db:artist -- "$f"; done
+```
+
+### Publishing & cache
+
+The app **does not** read `data/artists/*.json` at runtime — only **Supabase**. After `db:artist`, the live profile should match the DB as long as the deployment’s **`NEXT_PUBLIC_SUPABASE_URL`** is the same project you updated.
+
+If Supabase looks correct but the public URL shows old copy: confirm Vercel env matches that project. **`/artists`** routes are set up to avoid aggressive HTML caching (segment `revalidate` / `fetchCache`, `no-store` headers in `next.config.js`, and PWA **`public/sw.js`** skips caching HTML for URLs containing `/artists`). After a deploy that ships a new SW, use a hard refresh or private window on clients that kept an old cache.
+
+Rows created by **`npm run db:user-list`** ship a **short placeholder** bio until you replace them via agent + `db:artist` (or admin).
 
 ### Recommended workflow
 
@@ -181,3 +220,8 @@ The prompt is conservative: no invented URLs, **labels founded** vs labels where
 ### Admin API
 
 `POST /api/admin/agent` with JSON body (`slug`, `artistName`, optional notes, `search` boolean). Requires admin session. Same idea as CLI: model JSON in the response; use `db:artist` to persist at scale.
+
+### See also (rest of repo)
+
+- Full database schema, SQL migrations (including **`010`–`011`** organizations / Raveart), and npm scripts table: [**README.md**](../README.md) · Spanish summary: [**README.es.md**](../README.es.md).
+- Upload a local file to the **`media`** bucket: `npm run media:upload` → [`scripts/upload-storage-media.mjs`](../scripts/upload-storage-media.mjs).

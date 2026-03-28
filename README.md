@@ -28,6 +28,7 @@ These sections should hold the most stable, navigable and encyclopedia-like info
 - **Artists** — key names, timelines, artist directories and canonical references
 - **Scenes** — territory-based overviews (Bronx/NY, UK, US/Florida, Andalusia, Australia, global digital scene)
 - **Labels** — labels as infrastructure: who shaped the sound and why they matter
+- **Organizations** — promoters, booking brands and umbrella entities (e.g. Raveart as promoter + label arm); linked from labels and events
 - **Events** — festivals, club nights, iconic past events and current agenda
 - **Mixes** — essential sets, radio shows, YouTube/Mixcloud-era continuity
 
@@ -75,6 +76,18 @@ Listings and detail pages use a shared **`CardThumbnail`** component (`src/compo
 - **Blog post** pages show a wide hero image under the title when `image_url` is set (or placeholder if not).
 - **Responsive**: grids stack to one column on small screens; flyer-style hover tilt is limited to `sm:` and up to avoid awkward touch behaviour.
 
+### Directory listing views (Artists, Labels, Events, Scenes, Mixes)
+
+When Supabase returns rows, these five sections use **client components** that offer three layouts (toolbar top-right on Artists next to search; top-right on the others):
+
+| Mode | Behaviour |
+|------|-----------|
+| **Large** | Spacious grid (or flyer-style cards for events and mixes). |
+| **Compact** | Dense multi-column grid — **default** on first load (choice is not persisted in URL or `localStorage`). |
+| **List** | Horizontal rows with a small square thumbnail. |
+
+Shared UI: `src/components/ViewToggle.tsx`. Per-section explorers: `ArtistsExplorer`, `LabelsExplorer`, `EventsExplorer`, `ScenesExplorer`, `MixesExplorer` in `src/components/`. Labels for the buttons live under each section in `src/dictionaries/en.json` and `es.json` (`view_large`, `view_compact`, `view_list`).
+
 ---
 
 ## Supabase Storage (`media` bucket)
@@ -92,6 +105,14 @@ Server-side helpers:
 
 After uploading a file, store the **public object URL** in the corresponding `image_url` column (or build it with `publicMediaObjectUrl('path/inside/bucket.jpg')`).
 
+**CLI upload (local file → bucket `media`):** with service/secret key in `.env.local`:
+
+```bash
+npm run media:upload -- ./my-cover.webp events/raveart-summer-festival-2025/cover.webp
+```
+
+Script: [`scripts/upload-storage-media.mjs`](scripts/upload-storage-media.mjs). It prints the public URL and a sample `UPDATE` for `events.image_url` (or any table with `image_url`). Only upload images you have the **rights** to use (own photos, licensed assets, or explicit permission from rights holders).
+
 ---
 
 ## Project Structure
@@ -103,9 +124,13 @@ OptimalBreaks/
 ├── data/
 │   └── artists/                # One JSON file per artist → npm run db:artist
 ├── scripts/
-│   ├── seed-supabase.mjs       # Run SQL migrations / seed (needs Postgres URI)
-│   └── actualizar-artista.mjs  # Upsert artists from JSON (Postgres or Supabase API)
-│   ├── generar-artista-agente.mjs
+│   ├── seed-supabase.mjs            # Run SQL migrations / seed (needs Postgres URI)
+│   ├── actualizar-artista.mjs       # Upsert artists from JSON (Postgres or Supabase API)
+│   ├── ensure-artist-json-in-db.mjs # Compare JSON vs DB; upsert if bios differ
+│   ├── generar-artista-agente.mjs   # OpenAI → data/artists/<slug>.json
+│   ├── upload-storage-media.mjs     # npm run media:upload — local file → bucket `media`
+│   ├── sync-timeline-artists.mjs    # db:timeline / db:timeline:sql
+│   ├── sync-user-list-artists.mjs   # db:user-list — starter rows for extended name list
 │   └── prompts/
 │       └── artista-agente-system.txt  # System prompt for db:artist:agent
 ├── public/
@@ -121,9 +146,12 @@ OptimalBreaks/
 │   │       ├── page.tsx        # HOME — hero, deck, marquee, timeline, artists, events, CTA
 │   │       ├── history/        # Full breakbeat history by era
 │   │       ├── artists/        # Artist directory (+ Supabase / fallback)
-│   │       │   └── [slug]/     # Individual artist pages
+│   │       │   ├── layout.tsx  # No fetch/Data Cache; no-store headers for this segment
+│   │       │   └── [slug]/     # Individual artist pages (related-artist name → slug links)
 │   │       ├── labels/         # Record label directory
-│   │       │   └── [slug]/     # Individual label pages
+│   │       │   └── [slug]/     # Individual label pages (+ link to org when organization_id set)
+│   │       ├── organizations/  # Promoter / umbrella org detail (e.g. Raveart)
+│   │       │   └── [slug]/     # Related labels + promoted events
 │   │       ├── events/         # Event calendar + iconic past events
 │   │       │   └── [slug]/     # Individual event pages
 │   │       ├── scenes/         # Breakbeat by region/country
@@ -140,6 +168,12 @@ OptimalBreaks/
 │   ├── components/
 │   │   ├── Header.tsx          # Sticky nav, language switch, mobile menu, auth
 │   │   ├── Footer.tsx          # Site map, legal, social, funding note
+│   │   ├── ViewToggle.tsx      # Large / compact / list control (shared)
+│   │   ├── ArtistsExplorer.tsx # Artists: search, filters, three views
+│   │   ├── LabelsExplorer.tsx  # Labels: three views
+│   │   ├── EventsExplorer.tsx  # Events: three views
+│   │   ├── ScenesExplorer.tsx  # Scenes: three views
+│   │   ├── MixesExplorer.tsx   # Mixes: three views
 │   │   ├── CardThumbnail.tsx   # Shared image / placeholder for cards & heroes
 │   │   ├── DjDeck.tsx          # Interactive DJ controller with audio + scratch
 │   │   ├── Marquee.tsx         # Tape strip with infinite scroll
@@ -160,6 +194,7 @@ OptimalBreaks/
 │   │   ├── supabase-server.ts  # Server client (cookies)
 │   │   ├── supabase-admin.ts   # Service role (server only)
 │   │   ├── supabase-storage.ts # Storage URL + upload helpers
+│   │   ├── artist-entity-match.ts  # Resolve related-artist names → slugs for internal links
 │   │   ├── seo.ts              # Metadata helpers
 │   │   └── security.ts         # Slug / locale sanitization
 │   ├── types/
@@ -260,7 +295,7 @@ Never put elevated keys in `NEXT_PUBLIC_*` or client-side code.
 
 ### 4. Apply database migrations
 
-Run every file in `supabase/migrations/` on your Supabase project (SQL Editor or `npm run db:migrate` with Postgres configured). Use **lexical (alphabetical) order** so `004_*` files run before `005` and `006`. Notable files: `005_storage_media.sql` (Storage bucket), `006_artist_extended_fields.sql` (extra `artists` columns for rich profiles).
+Run every file in `supabase/migrations/` on your Supabase project (SQL Editor or `npm run db:migrate` with Postgres configured). Use **lexical (alphabetical) order** so `004_*` runs before `005`–`011`. Notable: `005` (Storage), `006` (rich artist fields), `007` (admin role), `008`–`009` (featured + timeline artists), `010` (organizations + Raveart / Raveart Records + first event batch), `011` (extra Raveart rows aligned with [official gallery](https://www.raveart.es/galeria/)). See the **SQL migrations** table below.
 
 Project scripts (if Postgres URI is configured):
 
@@ -312,6 +347,24 @@ npm run db:artist:ensure -- data/artists/deekline.json   # verify DB matches JSO
 
 Then review the JSON, fact-check, and run `npm run db:artist -- data/artists/<slug>.json`. **Always fact-check** before publishing.
 
+**Bulk upsert (all JSON files in `data/artists/`)** — from repo root, PowerShell:
+
+```powershell
+Get-ChildItem "data\artists\*.json" | ForEach-Object { npm run db:artist -- ("data/artists/" + $_.Name) }
+```
+
+Git Bash:
+
+```bash
+for f in data/artists/*.json; do npm run db:artist -- "$f"; done
+```
+
+### 5c. Artist pages: Supabase vs Git, caching, placeholders
+
+- **Source of truth for the live site** is the **`artists` table** in the Supabase project configured as `NEXT_PUBLIC_SUPABASE_URL` in Vercel (or locally). Committing JSON to Git does **not** update bios until you run **`npm run db:artist`** (or save via the admin API) against that same project.
+- **`npm run db:user-list`** inserts **starter** rows for many names (short placeholder copy in ES/EN). Replace those profiles with the agent + **`db:artist`** when you have a full JSON.
+- **Caching:** Under `[lang]/artists`, the app sets **`revalidate = 0`**, **`fetchCache = 'force-no-store'`**, and **`next.config.js`** adds **`Cache-Control` / `CDN-Cache-Control: no-store`** for `/[lang]/artists` routes so HTML and Supabase-backed data are not served stale from the Data Cache or the CDN after you publish DB changes. The PWA **`public/sw.js`** does **not** cache HTML for paths containing **`/artists`** (offline fallback for those URLs is not a stale artist page).
+
 ### 6. Run development server
 
 ```bash
@@ -328,16 +381,18 @@ Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to 
 |---------|-------|-------------|
 | Home | `/[lang]` | Hero with DJ deck, timeline, featured artists, events, CTA |
 | History | `/[lang]/history` | Origins, UK, US, Andalusia, Australia, decline, digital era |
-| Artists | `/[lang]/artists` | Directory from Supabase (or featured fallback) |
-| Labels | `/[lang]/labels` | Record labels that shaped the sound |
-| Events | `/[lang]/events` | Festivals, club nights, iconic past events, upcoming |
-| Scenes | `/[lang]/scenes` | Breakbeat by territory |
+| Artists | `/[lang]/artists` | Directory from Supabase (or featured fallback); **large / compact / list** views + filters |
+| Labels | `/[lang]/labels` | Record labels that shaped the sound; **three listing views** when data exists |
+| Organizations | `/[lang]/organizations/[slug]` | Promoter / umbrella org: related labels, event archive and upcoming (e.g. `raveart`) |
+| Events | `/[lang]/events` | Festivals, club nights, iconic past events, upcoming; **three listing views** |
+| Scenes | `/[lang]/scenes` | Breakbeat by territory; **three listing views** |
 | Blog | `/[lang]/blog` | Editorial layer: essays, comparisons, retrospectives |
-| Mixes | `/[lang]/mixes` | Essential mixes, classic sets, radio shows |
+| Mixes | `/[lang]/mixes` | Essential mixes, classic sets, radio shows; **three listing views** |
 | Dashboard | `/[lang]/dashboard` | User area (favorites, sightings, events, mixes, profile) — requires login |
 | Login | `/[lang]/login` | Supabase auth |
 | Privacy / Terms / Cookies | `/[lang]/privacy`, etc. | Legal pages |
 | About | `/[lang]/about` | Project manifesto, contact, collaborate, submit |
+| Administrator | `/[lang]/administrator` | Admin-only CRUD + image upload (`profiles.role = admin`); not linked from public nav |
 
 ---
 
@@ -346,8 +401,9 @@ Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to 
 Supabase tables are reflected in `src/types/database.ts`. Highlights:
 
 - **artists** — `slug`, name / `name_display`, `real_name`, bio (EN/ES), category, styles, era, `image_url`, essential tracks, recommended mixes, related artists, `labels_founded`, `key_releases` (JSON), website, socials, featured flag, sort order — see `006_artist_extended_fields.sql` and `data/artists/deekline.json`
-- **labels** — name, country, founded year, description (EN/ES), `image_url`, key artists/releases
-- **events** — name, type, dates, location, lineup, description (EN/ES), `image_url`
+- **labels** — name, country, founded year, description (EN/ES), `image_url`, key artists/releases; optional **`organization_id`** → `organizations.id` (migration `010`)
+- **events** — name, type, dates, location, lineup, description (EN/ES), `image_url`; optional **`promoter_organization_id`** → `organizations.id` (migration `010`)
+- **organizations** — `slug`, name, roles (`label`, `promoter`, …), descriptions (EN/ES), `website`, `socials` (JSON), optional `base_city` / `founded_year`; Raveart seed + FK wiring in `010_raveart_organizations.sql`; extra gallery-titled events in `011_raveart_gallery_events.sql`
 - **blog_posts** — title, content, excerpt (EN/ES), category, tags, author, `image_url`, published flag
 - **scenes** — name (EN/ES), country, region, key artists/labels/venues, era, `image_url`
 - **mixes** — title, artist, type, year, duration, embed URL, platform, `image_url`
@@ -369,6 +425,11 @@ Files under `supabase/migrations/` (apply in lexical order):
 | `004_slug_and_function_hardening.sql` | Slug / function hardening |
 | `005_storage_media.sql` | Storage bucket `media` + public read policy |
 | `006_artist_extended_fields.sql` | `artists`: `real_name`, `labels_founded`, `key_releases` |
+| `007_admin_role.sql` | Admin role flag on profiles |
+| `008_home_featured_artists.sql` | Home / featured artist wiring |
+| `009_artists_from_artist_eras_timeline.sql` | Large INSERT set from era map (regenerable via `db:timeline:sql`) |
+| `010_raveart_organizations.sql` | Table **`organizations`**, FKs on **`labels.organization_id`** and **`events.promoter_organization_id`**, RLS read policy; seed **Raveart**, **Raveart Records**, first **Summer/Winter** (+ **Summer 2026** placeholder) |
+| `011_raveart_gallery_events.sql` | More **Raveart** events to match [galería oficial](https://www.raveart.es/galeria/) (**Winter 2019**, **Winter 2022**, **Retro Halloween** 2022–2025); SQL comment for filling **`image_url`** after Storage upload |
 
 ---
 
@@ -385,6 +446,8 @@ Files under `supabase/migrations/` (apply in lexical order):
 | `npm run db:artist:agent:all` | Regenerate JSON for **all** artists listed in Supabase (uses API credits; then run `db:artist` per file or bulk script). |
 | `npm run db:timeline` | Insert **missing** artists from `src/lib/artists-timeline.ts` (`ARTIST_ERAS`, same names as `/artists`) via **Supabase API** (service/secret key). Skips slugs already in `artists`. |
 | `npm run db:timeline:sql` | Regenerate `009_artists_from_artist_eras_timeline.sql` (optional; for migrations without running the script against prod). |
+| `npm run db:user-list` | Insert **missing** artists from the extended name list in `sync-user-list-artists.mjs` (short **placeholder** bios until you enrich with agent + `db:artist`). |
+| `npm run media:upload -- <local-file> <path-in-bucket>` | Upload a file to Storage bucket **`media`** (service/secret key); prints public URL + sample SQL for `image_url`. |
 
 ---
 
@@ -394,10 +457,11 @@ Files under `supabase/migrations/` (apply in lexical order):
 - [x] Per-entity `image_url` + shared card thumbnails and Storage bucket for hosted images
 - [x] User auth + dashboard (favorites, sightings, saved content)
 - [x] Artist updates via JSON + `npm run db:artist` (upsert by `slug`; Postgres or Supabase API)
-- [ ] Admin panel — CRUD for artists, labels, events, blog posts + image upload UI
+- [x] Admin UI — `/[lang]/administrator`: CRUD for artists, labels, events, blog, scenes, mixes, history + image upload (requires `admin` on `profiles`)
+- [x] Public reference listings — **large / compact / list** views for artists, labels, events, scenes, mixes (default **compact**; choice not persisted)
 - [ ] Search functionality
 - [ ] Richer SoundCloud/YouTube/Mixcloud embeds in mixes section
-- [ ] Sitemap.xml + robots.txt for SEO
+- [x] Dynamic sitemap (`src/app/sitemap.ts`, includes `/organizations/*`) + robots rules (`src/app/robots.ts`) for SEO basics
 - [ ] OG images per section
 - [ ] RSS feed for blog
 - [ ] Newsletter subscription

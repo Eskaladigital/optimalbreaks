@@ -10,6 +10,8 @@ La documentación técnica completa está en inglés en [**README.md**](./README
 
 Plataforma web **bilingüe (ES/EN)** sobre historia, artistas, sellos, eventos, escenas y cultura del **breakbeat**. Incluye un **DJ deck** interactivo (audio real y scratch), estética fanzine/club, y secciones editoriales y de referencia.
 
+**Organizaciones y Raveart:** existe la tabla **`organizations`** (promotora, roles, enlaces). Los **sellos** pueden enlazar a una organización (`labels.organization_id`) y los **eventos** a la promotora (`events.promoter_organization_id`). Ficha pública: `/[lang]/organizations/[slug]` (p. ej. `raveart`). Datos sembrados y ampliados con las migraciones **`010_raveart_organizations.sql`** y **`011_raveart_gallery_events.sql`** (alineación con la [galería oficial](https://www.raveart.es/galeria/)). Detalle técnico y tabla de migraciones en [README.md](./README.md).
+
 ---
 
 ## Stack principal
@@ -43,6 +45,26 @@ npm run db:timeline
 
 Usa la **API de Supabase** con la clave de servicio y solo **inserta** filas cuyo `slug` aún no exista. Opcional: `npm run db:timeline:sql` regenera la migración `009_*.sql` por si quieres versionarla.
 
+**Listado extendido de nombres** (`sync-user-list-artists.mjs`): crea filas mínimas con **texto placeholder** (ES/EN) para muchos artistas. Para una ficha completa, genera JSON con el agente y ejecuta **`npm run db:artist`** (o edita en el panel admin).
+
+```bash
+npm run db:user-list
+```
+
+### Volcar todos los JSON a la base (bulk)
+
+Desde la raíz del repo. **PowerShell:**
+
+```powershell
+Get-ChildItem "data\artists\*.json" | ForEach-Object { npm run db:artist -- ("data/artists/" + $_.Name) }
+```
+
+**Git Bash:**
+
+```bash
+for f in data/artists/*.json; do npm run db:artist -- "$f"; done
+```
+
 ### Cómo se conecta el script
 
 | Modo | Cuándo |
@@ -56,9 +78,17 @@ La clave **anon** o **publishable** (`sb_publishable_*`) **no sirve** para este 
 
 - `data/artists/*.json` — datos por artista
 - `scripts/actualizar-artista.mjs` — lógica del upsert
+- `scripts/ensure-artist-json-in-db.mjs` — comprobar JSON vs fila en BD y sincronizar si difiere (`npm run db:artist:ensure`)
+- `src/lib/artist-entity-match.ts` — enlazar nombres en `related_artists` (y similares) a slugs internos en las fichas
 - [`docs/ARTIST_AI_AGENT.md`](./docs/ARTIST_AI_AGENT.md) — guía completa del **agente IA** (español e inglés): batch, variables, sync con Supabase, API admin
 
 Más detalle y tabla de migraciones SQL en [README.md](./README.md).
+
+### Ficha en la web: qué manda y la caché
+
+- La web lee **`artists` en Supabase** (misma URL que `NEXT_PUBLIC_SUPABASE_URL` en Vercel). **Git/commit no actualiza la bio** hasta que ejecutes **`db:artist`** o guardes desde el admin contra ese proyecto.
+- Si ves el texto corto tipo *«Incluido en el listado extendido…»*, la fila viene de **`db:user-list`** (o equivalente); sustitúyela con JSON + **`db:artist`**.
+- Rutas **`/artists`**: el layout del segmento fuerza datos frescos (`revalidate` 0, `fetchCache` sin store), cabeceras **`no-store`** en `next.config.js` y el **service worker** no guarda HTML de URLs con `/artists`, para que tras publicar en BD no se quede una página vieja en CDN o PWA.
 
 ### Agente de biografías (OpenAI)
 
@@ -81,7 +111,7 @@ Necesitas **`OPENAI_API_KEY`**. Por defecto **`gpt-5.4`**; **`OPENAI_MODEL`** lo
 Copia `.env.local.example` → `.env.local`.
 
 - **Cliente (navegador):** `NEXT_PUBLIC_SUPABASE_URL` + **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** *o* **`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`** (`sb_publishable_*`).
-- **Solo servidor** (Storage admin, `db:artist` vía API): **`SUPABASE_SERVICE_ROLE_KEY`** *o* **`SUPABASE_SECRET_KEY`** (`sb_secret_*`). Nunca en `NEXT_PUBLIC_*`.
+- **Solo servidor** (Storage admin, `db:artist` vía API, **`npm run media:upload`**): **`SUPABASE_SERVICE_ROLE_KEY`** *o* **`SUPABASE_SECRET_KEY`** (`sb_secret_*`). Nunca en `NEXT_PUBLIC_*`.
 - **Postgres** (opcional, para `db:migrate` / `db:seed`): ver comentarios en `.env.local.example`.
 - **Agente de bios** (opcional): `OPENAI_API_KEY`, opcionalmente `OPENAI_MODEL`, y si quieres búsqueda web `SERPAPI_API_KEY` (ver `.env.local.example` y [`docs/ARTIST_AI_AGENT.md`](./docs/ARTIST_AI_AGENT.md)).
 
@@ -94,13 +124,31 @@ Copia `.env.local.example` → `.env.local`.
 - Se usa en listados, fichas de detalle, home, blog (lista y artículo) y favoritos del dashboard.
 - Las URLs pueden ser de **Supabase Storage** (`/storage/v1/object/public/media/...`) u otros HTTPS.
 
+### Vistas de listado (grande / compacto / lista)
+
+En **Artistas**, **Sellos**, **Eventos**, **Escenas** y **Mixes** (cuando hay filas en Supabase) puedes cambiar la disposición de las tarjetas:
+
+- **Grande** — rejilla amplia (o tarjetas estilo flyer en eventos y mixes).
+- **Compacto** — rejilla densa; es la **vista por defecto** al cargar (no se guarda en URL ni `localStorage`).
+- **Lista** — filas con miniatura cuadrada.
+
+Componentes: `ViewToggle.tsx` más `ArtistsExplorer`, `LabelsExplorer`, `EventsExplorer`, `ScenesExplorer`, `MixesExplorer` en `src/components/`. Textos en `src/dictionaries/es.json` y `en.json` (`view_large`, `view_compact`, `view_list`).
+
 ---
 
 ## Storage en Supabase
 
 1. Aplica la migración **`supabase/migrations/005_storage_media.sql`** en tu proyecto.
-2. Sube archivos al bucket **`media`** (panel de Supabase o código servidor con **service role** o **secret key**).
+2. Sube archivos al bucket **`media`** (panel de Supabase, código servidor con **service role** / **secret key**, o CLI del repo).
 3. Guarda la URL pública en la columna **`image_url`** correspondiente.
+
+**Desde tu máquina (archivo local → bucket):** con `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` o `SUPABASE_SECRET_KEY` en `.env.local`:
+
+```bash
+npm run media:upload -- ./portada.webp events/raveart-summer-festival-2025/cover.webp
+```
+
+El script [`scripts/upload-storage-media.mjs`](./scripts/upload-storage-media.mjs) imprime la URL pública y un ejemplo de `UPDATE` para `image_url`. Respeta **derechos de imagen**: solo sube material propio, con licencia o con permiso explícito.
 
 Helpers en código: `src/lib/supabase-storage.ts`, `src/lib/supabase-admin.ts`.
 
@@ -116,20 +164,24 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
-Aplica las migraciones SQL de `supabase/migrations/` **en orden alfabético** en el panel de Supabase, o `npm run db:migrate` si tienes URI de Postgres configurada.
+Aplica las migraciones SQL de `supabase/migrations/` **en orden alfabético** en el panel de Supabase, o `npm run db:migrate` si tienes URI de Postgres configurada. Tras el núcleo (`001`–`006`): **`007`** rol admin, **`008`–`009`** artistas destacados y timeline; **`010`** tabla **`organizations`**, FKs en **`labels`** / **`events`**, siembra Raveart + Raveart Records + primer lote de festivales; **`011`** más eventos alineados con la [galería oficial de Raveart](https://www.raveart.es/galeria/). Tabla archivo a archivo en [README.md](./README.md).
 
 ---
 
 ## Secciones del sitio
 
-Inicio, historia, artistas, sellos, eventos, escenas, blog, mixes, about, **login**, **dashboard** (usuario), páginas legales (privacidad, términos, cookies). Detalle en la tabla del README principal.
+Inicio, historia, artistas, sellos, **organizaciones** (`/organizations/[slug]`), eventos, escenas, blog, mixes, about, **login**, **dashboard** (usuario), **`/administrator`** (solo `profiles.role = admin`: CRUD + imágenes; sin enlace en el menú público), páginas legales. Listados desde Supabase en artistas, sellos, eventos, escenas y mixes: **tres vistas** (grande / compacto / lista; por defecto compacto). Detalle en [README.md](./README.md).
+
+### Migraciones SQL (resumen)
+
+Aplica `supabase/migrations/` en **orden alfabético**. Descripción detallada de cada archivo en el README en inglés.
 
 ---
 
 ## Roadmap (resumen)
 
-Hecho: datos desde Supabase en listados, miniaturas y bucket de imágenes, auth y dashboard básico, **actualización de artistas por JSON + `db:artist`**.  
-Pendiente: panel admin visual, búsqueda, SEO avanzado (OG), RSS, etc.
+Hecho: Supabase en listados, miniaturas y Storage, auth, dashboard, **JSON + `db:artist`**, **`/administrator`**, **vistas de listado** en las cinco secciones de referencia, **sitemap + robots** (`sitemap.ts`, `robots.ts`), segmento `/artists` sin caché agresiva de HTML.  
+Pendiente: búsqueda global, OG por sección, RSS, modo oscuro, etc.
 
 ---
 
