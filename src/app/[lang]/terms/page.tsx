@@ -16,7 +16,7 @@ export default async function TermsPage({ params }: { params: { lang: Locale } }
   const es = lang === 'es'
 
   const sections = es ? [
-    { t: '1. Aceptación de los términos', p: 'Al acceder y utilizar Optimal Breaks (optimalbreaks.com), aceptas estos términos de uso. Si no estás de acuerdo, por favor no utilices este sitio web.' },
+    { t: '1. Aceptación de los términos', p: 'Al acceder y utilizar Optimal Breaks (www.optimalbreaks.com), aceptas estos términos de uso. Si no estás de acuerdo, por favor no utilices este sitio web.' },
     { t: '2. Descripción del servicio', p: 'Optimal Breaks es una plataforma informativa y cultural dedicada a la historia, artistas, sellos, eventos y cultura del breakbeat. El contenido se ofrece con fines informativos y de entretenimiento.' },
     { t: '3. Propiedad intelectual', p: 'Todo el contenido original de Optimal Breaks (textos, diseño, código, logotipos) es propiedad de Optimal Breaks o se utiliza con los permisos correspondientes. Las marcas, nombres de artistas y sellos pertenecen a sus respectivos propietarios.' },
     { t: '4. Uso permitido', p: 'Puedes navegar, leer y compartir enlaces al contenido del sitio. Queda prohibida la reproducción, distribución o modificación del contenido sin autorización previa por escrito.' },
@@ -27,7 +27,7 @@ export default async function TermsPage({ params }: { params: { lang: Locale } }
     { t: '9. Modificaciones', p: 'Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán efectivos desde su publicación en esta página.' },
     { t: '10. Legislación aplicable', p: 'Estos términos se rigen por la legislación española y europea. Cualquier disputa se someterá a los tribunales de Murcia, España.' },
   ] : [
-    { t: '1. Acceptance of Terms', p: 'By accessing and using Optimal Breaks (optimalbreaks.com), you agree to these terms of use. If you disagree, please do not use this website.' },
+    { t: '1. Acceptance of Terms', p: 'By accessing and using Optimal Breaks (www.optimalbreaks.com), you agree to these terms of use. If you disagree, please do not use this website.' },
     { t: '2. Service Description', p: 'Optimal Breaks is an informational and cultural platform dedicated to the history, artists, labels, events, and culture of breakbeat. Content is provided for informational and entertainment purposes.' },
     { t: '3. Intellectual Property', p: 'All original content on Optimal Breaks (text, design, code, logos) is owned by Optimal Breaks or used with appropriate permissions. Trademarks, artist names, and labels belong to their respective owners.' },
     { t: '4. Permitted Use', p: 'You may browse, read, and share links to site content. Reproduction, distribution, or modification of content without prior written authorization is prohibited.' },

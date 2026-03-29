@@ -15,12 +15,12 @@ const COPY: Record<
   en: {
     kicker: 'THE BREAKBEAT BIBLE',
     line: 'Archive · history · culture · EN / ES',
-    url: 'optimalbreaks.com',
+    url: 'www.optimalbreaks.com',
   },
   es: {
     kicker: 'LA BIBLIA DEL BREAKBEAT',
     line: 'Archivo · historia · cultura · EN / ES',
-    url: 'optimalbreaks.com',
+    url: 'www.optimalbreaks.com',
   },
 }
 

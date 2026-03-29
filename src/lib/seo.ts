@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 import { getDictionary } from '@/lib/dictionaries'
 import { i18n, type Locale } from '@/lib/i18n-config'
 
-export const SITE_URL = 'https://optimalbreaks.com' as const
+export const SITE_URL = 'https://www.optimalbreaks.com' as const
 
 /** Referenced in manifest / JSON-LD logo; PWA icons. */
 export const DEFAULT_OG_IMAGE_PATH = '/icon-512.png' as const

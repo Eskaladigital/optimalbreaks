@@ -11,7 +11,7 @@ const rootDescription =
   'Breakbeat history from the Bronx to UK bass: timeline, artists, scenes, labels, events, mixes and blog. Bilingual archive (EN/ES).'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://optimalbreaks.com'),
+  metadataBase: new URL('https://www.optimalbreaks.com'),
   title: {
     default: `${rootTitle} | Optimal Breaks`,
     template: '%s | Optimal Breaks',

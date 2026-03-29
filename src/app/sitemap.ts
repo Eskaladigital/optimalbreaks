@@ -5,7 +5,7 @@
 import { MetadataRoute } from 'next'
 import { createSimpleSupabase } from '@/lib/supabase'
 
-const BASE_URL = 'https://optimalbreaks.com'
+const BASE_URL = 'https://www.optimalbreaks.com'
 
 function slugList(data: { slug: string }[] | null): string[] {
   if (!data?.length) return []

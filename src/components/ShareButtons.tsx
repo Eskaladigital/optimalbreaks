@@ -17,7 +17,7 @@ interface ShareButtonsProps {
 export default function ShareButtons({ url, title, lang }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false)
   const es = lang === 'es'
-  const fullUrl = `https://optimalbreaks.com${url}`
+  const fullUrl = `https://www.optimalbreaks.com${url}`
   const encodedUrl = encodeURIComponent(fullUrl)
   const encodedTitle = encodeURIComponent(title)
 

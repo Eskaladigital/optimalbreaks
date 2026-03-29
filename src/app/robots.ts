@@ -19,6 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         '/*/administrator',
       ],
     },
-    sitemap: 'https://optimalbreaks.com/sitemap.xml',
+    sitemap: 'https://www.optimalbreaks.com/sitemap.xml',
   }
 }
