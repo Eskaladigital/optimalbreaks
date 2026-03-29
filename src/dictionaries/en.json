@@ -319,7 +319,10 @@
     },
     "view_large": "Large",
     "view_compact": "Compact",
-    "view_list": "List"
+    "view_list": "List",
+    "poster_zoom_aria": "Open poster full size",
+    "poster_close": "Close",
+    "poster_lightbox_title": "Event poster"
   },
   "scenes": {
     "title": "Scenes",

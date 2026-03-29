@@ -41,7 +41,7 @@ export default function CardThumbnail({
         <img
           src={url}
           alt={alt}
-          className={`h-full w-full transition-transform duration-300 ease-out ${imgFit}`}
+          className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${imgFit}`}
           loading="lazy"
           decoding="async"
         />
@@ -64,7 +64,7 @@ function ThumbnailPlaceholder({ alt }: { alt: string }) {
 
   return (
     <div
-      className="flex h-full min-h-[4.5rem] w-full items-center justify-center"
+      className="absolute inset-0 flex w-full items-center justify-center"
       style={{
         backgroundImage:
           'repeating-linear-gradient(-45deg, var(--paper-dark), var(--paper-dark) 6px, rgba(26,26,26,0.06) 6px, rgba(26,26,26,0.06) 12px)',

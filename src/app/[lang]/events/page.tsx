@@ -145,7 +145,7 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
                   <CardThumbnail
                     src={null}
                     alt={lang === 'es' ? event.name_es : event.name_en}
-                    aspectClass="aspect-[2/3]"
+                    aspectClass="aspect-poster w-full"
                     fit="contain"
                   />
                   <div className="p-5 sm:p-7 relative">

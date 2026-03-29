@@ -58,6 +58,9 @@ module.exports = {
         'flicker': 'flicker 2s infinite',
         'bpm-pulse': 'bpm-pulse 1s ease-in-out infinite',
       },
+      aspectRatio: {
+        poster: '2 / 3',
+      },
     },
   },
   plugins: [],

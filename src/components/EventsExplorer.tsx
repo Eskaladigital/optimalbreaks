@@ -44,7 +44,7 @@ function LargeGrid({ events, lang }: { events: BreakEvent[]; lang: string }) {
           <CardThumbnail
             src={e.image_url}
             alt={e.name}
-            aspectClass="aspect-[2/3]"
+            aspectClass="aspect-poster w-full"
             frameClass="border-b-[3px] border-[var(--ink)]"
             fit="contain"
           />
@@ -71,14 +71,14 @@ function LargeGrid({ events, lang }: { events: BreakEvent[]; lang: string }) {
 
 function CompactGrid({ events, lang }: { events: BreakEvent[]; lang: string }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 border-4 border-[var(--ink)]">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 border-4 border-[var(--ink)] items-start">
       {events.map((e) => (
         <Link
           key={e.slug}
           href={`/${lang}/events/${e.slug}`}
           className="border-b-[3px] border-r-[3px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group no-underline text-[var(--ink)] flex flex-col overflow-hidden"
         >
-          <CardThumbnail src={e.image_url} alt={e.name} aspectClass="aspect-[2/3]" fit="contain" />
+          <CardThumbnail src={e.image_url} alt={e.name} aspectClass="aspect-poster w-full" fit="cover" />
           <div className="p-3 flex flex-col flex-grow min-h-0">
             <div style={{ fontFamily: "'Darker Grotesque', sans-serif", fontWeight: 900, fontSize: '11px', color: 'var(--red)' }}>
               {e.date_start || 'TBA'}
@@ -106,7 +106,7 @@ function ListView({ events, lang }: { events: BreakEvent[]; lang: string }) {
           className="flex items-center gap-3 sm:gap-5 px-4 sm:px-6 py-3 border-b-[2px] border-[var(--ink)] transition-all duration-150 hover:bg-[var(--yellow)] group no-underline text-[var(--ink)]"
         >
           <div className="shrink-0 w-[2.75rem] sm:w-14 overflow-hidden border-[2px] border-[var(--ink)]">
-            <CardThumbnail src={e.image_url} alt={e.name} aspectClass="aspect-[2/3]" frameClass="" fit="contain" />
+            <CardThumbnail src={e.image_url} alt={e.name} aspectClass="aspect-poster w-full" frameClass="" fit="cover" />
           </div>
           <div className="flex-grow min-w-0">
             <div className="truncate" style={{ fontFamily: "'Unbounded', sans-serif", fontWeight: 900, fontSize: 'clamp(12px, 2.5vw, 16px)', textTransform: 'uppercase', letterSpacing: '-0.3px' }}>

@@ -4,6 +4,7 @@
 // ============================================
 
 import { createServerSupabase } from '@/lib/supabase-server'
+import { getDictionary } from '@/lib/dictionaries'
 import { detailPageMetadata, siteNameForLang } from '@/lib/seo'
 import type { Locale } from '@/lib/i18n-config'
 import type { BreakEvent, Organization } from '@/types/database'
@@ -11,7 +12,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
 import FanCounter from '@/components/FanCounter'
-import CardThumbnail from '@/components/CardThumbnail'
+import EventPosterLightbox from '@/components/EventPosterLightbox'
 
 type Props = { params: { lang: Locale; slug: string } }
 type EventSeoRow = Pick<BreakEvent, 'name' | 'description_en' | 'description_es' | 'image_url'>
@@ -54,6 +55,13 @@ export default async function EventDetailPage({ params }: Props) {
     )
   }
 
+  const dict = await getDictionary(lang)
+  const ev = dict.events as {
+    poster_zoom_aria: string
+    poster_close: string
+    poster_lightbox_title: string
+  }
+
   return (
     <div className="lined min-h-screen px-4 sm:px-6 pt-8 pb-14 sm:pt-12 sm:pb-20">
       <Link href={`/${lang}/events`} className="btn-back"><span className="arrow">←</span> {lang === 'es' ? 'Volver a Eventos' : 'Back to Events'}</Link>
@@ -67,7 +75,13 @@ export default async function EventDetailPage({ params }: Props) {
       </div>
 
       <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden sm:max-w-lg">
-        <CardThumbnail src={event.image_url} alt={event.name} aspectClass="aspect-[2/3] w-full" frameClass="border-0" fit="contain" />
+        <EventPosterLightbox
+          src={event.image_url}
+          alt={event.name}
+          zoomAria={ev.poster_zoom_aria}
+          closeLabel={ev.poster_close}
+          lightboxTitle={ev.poster_lightbox_title}
+        />
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
