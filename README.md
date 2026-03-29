@@ -306,6 +306,8 @@ npm run db:seed
 
 ### 5. Updating artists (JSON upsert)
 
+Files matching **`data/artists/*.json`** are **gitignored** (the live site reads **Supabase** only). Use JSON locally for upserts, agent output (`--json-only` / `--save-json`), or exports; fresh clones get an empty `data/artists/` folder except `.gitkeep`.
+
 Recommended way to create or refresh **artist** rows without SQL or a dashboard:
 
 1. Ensure migration **`006_artist_extended_fields.sql`** has been applied (adds `real_name`, `labels_founded`, `key_releases` on `artists`).

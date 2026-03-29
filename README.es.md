@@ -25,6 +25,8 @@ Plataforma web **bilingüe (ES/EN)** sobre historia, artistas, sellos, eventos, 
 
 ## Actualizar artistas (forma recomendada)
 
+Los archivos **`data/artists/*.json`** están en **`.gitignore`** (la web en vivo solo lee **Supabase**). Genera o edita JSON en local para upserts o salida del agente; un `git clone` deja la carpeta vacía salvo `.gitkeep`.
+
 No hace falta escribir SQL a mano para crear o refrescar fichas de **artistas**:
 
 1. **Migración** — Aplica en Supabase `supabase/migrations/006_artist_extended_fields.sql` si aún no está (añade `real_name`, `labels_founded`, `key_releases` en `artists`).
