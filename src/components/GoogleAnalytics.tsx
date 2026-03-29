@@ -1,46 +1,71 @@
 // ============================================
-// OPTIMAL BREAKS — Google Analytics 4 (gtag.js)
-// Solo carga si hay NEXT_PUBLIC_GA_MEASUREMENT_ID y consentimiento analítico.
+// OPTIMAL BREAKS — Google Analytics 4 (gtag.js) con Consent Mode v2
+// Implementación recomendada por Google para Next.js App Router y RGPD.
 // ============================================
 
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
-function cookieHasAnalyticsConsent(): boolean {
-  if (typeof document === 'undefined') return false
-  return document.cookie.includes('ob_cookie_consent=accepted')
+export function updateGoogleConsent(granted: boolean) {
+  if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
+    const state = granted ? 'granted' : 'denied'
+    ;(window as any).gtag('consent', 'update', {
+      analytics_storage: state,
+      ad_storage: state,
+      ad_user_data: state,
+      ad_personalization: state,
+    })
+  }
 }
 
 export default function GoogleAnalytics() {
-  const [enabled, setEnabled] = useState(false)
-
+  // 1. Escuchar los eventos del banner de cookies
   useEffect(() => {
-    if (cookieHasAnalyticsConsent()) setEnabled(true)
+    // Si la cookie ya existía al cargar la página, actualizamos a granted
+    if (typeof document !== 'undefined' && document.cookie.includes('ob_cookie_consent=accepted')) {
+      updateGoogleConsent(true)
+    }
+
     const onConsent = (e: Event) => {
       const v = (e as CustomEvent<{ value?: string }>).detail?.value
-      if (v === 'accepted') setEnabled(true)
+      updateGoogleConsent(v === 'accepted')
     }
     window.addEventListener('ob-cookie-consent', onConsent)
     return () => window.removeEventListener('ob-cookie-consent', onConsent)
   }, [])
 
-  if (!GA_ID || !enabled) return null
+  if (!GA_ID) return null
 
   return (
     <>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
-      <Script id="google-analytics-gtag" strategy="afterInteractive">
+      {/* 2. Configurar Consent Mode v2 por defecto (denied) antes de inicializar GA */}
+      <Script id="google-analytics-consent" strategy="afterInteractive">
         {`
-window.dataLayer=window.dataLayer||[];
-function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());
-gtag('config','${GA_ID}');
-        `.trim()}
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function(){window.dataLayer.push(arguments);}
+          
+          // Todo denegado por defecto hasta que el usuario acepte (Consent Mode v2)
+          window.gtag('consent', 'default', {
+            'analytics_storage': 'denied',
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'wait_for_update': 500
+          });
+          
+          window.gtag('js', new Date());
+          window.gtag('config', '${GA_ID}');
+        `}
       </Script>
+      {/* 3. Cargar el script de GA4. Operará en modo cookieless hasta que se actualice el consentimiento */}
+      <Script 
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} 
+        strategy="afterInteractive" 
+      />
     </>
   )
 }
