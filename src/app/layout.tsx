@@ -3,18 +3,20 @@
 // ============================================
 
 import type { Metadata } from 'next'
-import { DEFAULT_OG_IMAGE_PATH, SITE_URL } from '@/lib/seo'
+import { generatedOgImageUrl, SITE_URL } from '@/lib/seo'
 
-const defaultOg = `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`
+const defaultOg = generatedOgImageUrl('en')
+const rootTitle = 'The breakbeat bible — archive, history and culture'
+const rootDescription =
+  'Breakbeat history from the Bronx to UK bass: timeline, artists, scenes, labels, events, mixes and blog. Bilingual archive (EN/ES).'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://optimalbreaks.com'),
   title: {
-    default: 'Optimal Breaks',
+    default: `${rootTitle} | Optimal Breaks`,
     template: '%s | Optimal Breaks',
   },
-  description:
-    'Archive, magazine and guide to breakbeat culture—history, artists, scenes and dancefloor memory (EN/ES).',
+  description: rootDescription,
   keywords: [
     'breakbeat',
     'breaks',
@@ -28,11 +30,18 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: 'website',
+    url: `${SITE_URL}/en`,
+    title: rootTitle,
+    description: rootDescription,
     siteName: 'Optimal Breaks',
-    images: [{ url: defaultOg, alt: 'Optimal Breaks' }],
+    locale: 'en_US',
+    alternateLocale: ['es_ES'],
+    images: [{ url: defaultOg, width: 1200, height: 630, alt: 'Optimal Breaks — The breakbeat bible' }],
   },
   twitter: {
     card: 'summary_large_image',
+    title: rootTitle,
+    description: rootDescription,
     images: [defaultOg],
   },
   robots: { index: true, follow: true },

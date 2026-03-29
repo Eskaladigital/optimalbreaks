@@ -5,7 +5,7 @@
 
 import { getDictionary } from '@/lib/dictionaries'
 import type { Locale } from '@/lib/i18n-config'
-import { staticPageMetadata } from '@/lib/seo'
+import { HOME_OG_IMAGE_ES, staticPageMetadata } from '@/lib/seo'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import DjDeck from '@/components/DjDeck'
@@ -40,6 +40,12 @@ const FEATURED_ARTISTS: {
 
 export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
   const { lang } = await params
+  if (lang === 'es') {
+    return staticPageMetadata(lang, '', 'home', {
+      ogImagePath: HOME_OG_IMAGE_ES,
+      ogImageAlt: 'Krafty Kuts y Optimal Breaks — breakbeat y cultura de pista',
+    })
+  }
   return staticPageMetadata(lang, '', 'home')
 }
 

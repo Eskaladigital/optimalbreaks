@@ -72,7 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
     headline: title,
     author: { '@type': 'Person', name: post.author || 'Optimal Breaks' },
     datePublished: post.published_at,
-    image: absoluteOgImage(post.image_url),
+    image: absoluteOgImage(post.image_url, safeLang),
     mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
     inLanguage: safeLang,
   }
