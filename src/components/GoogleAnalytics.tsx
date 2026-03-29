@@ -1,6 +1,6 @@
 // ============================================
 // OPTIMAL BREAKS — Google Analytics 4 (gtag.js)
-// Implementación estricta y directa. Solo carga tras consentimiento.
+// Implementación estricta en JavaScript nativo.
 // ============================================
 
 'use client'
@@ -11,17 +11,25 @@ import { usePathname, useSearchParams } from 'next/navigation'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
+// Extender Window para evitar errores de TS
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 function AnalyticsTracker({ enabled }: { enabled: boolean }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (enabled && typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
+    if (enabled && typeof window !== 'undefined' && typeof window.gtag === 'function') {
       let url = pathname
       const qs = searchParams.toString()
       if (qs) url += `?${qs}`
       
-      ;(window as any).gtag('config', GA_ID, {
+      window.gtag('config', GA_ID, {
         page_path: url,
       })
     }
@@ -48,27 +56,22 @@ export default function GoogleAnalytics() {
     return () => window.removeEventListener('ob-cookie-consent', onConsent)
   }, [])
 
+  // Inicializar dataLayer y gtag en JS puro, ya que React no ejecuta <script> inyectados dinámicamente
+  if (enabled && typeof window !== 'undefined') {
+    window.dataLayer = window.dataLayer || []
+    if (!window.gtag) {
+      window.gtag = function () {
+        window.dataLayer.push(arguments)
+      }
+      window.gtag('js', new Date())
+    }
+  }
+
   if (!GA_ID || !enabled) return null
 
-  // Usamos un <script> nativo para la inicialización en línea
-  // para garantizar ejecución inmediata al cambiar el estado a true.
   return (
     <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
-      <script
-        id="ga-init"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){window.dataLayer.push(arguments);}
-            window.gtag = gtag;
-            gtag('js', new Date());
-            gtag('config', '${GA_ID}', {
-              page_path: window.location.pathname,
-            });
-          `,
-        }}
-      />
       <Suspense fallback={null}>
         <AnalyticsTracker enabled={enabled} />
       </Suspense>
