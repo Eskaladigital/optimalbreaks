@@ -78,6 +78,21 @@ const ACTIONS = [
     description: 'Ejecuta todos los *.sql en supabase/migrations (orden alfabético).',
   },
   {
+    id: 'push-hibrida-fest',
+    run: 'node scripts/guia-base-datos.mjs run push-hibrida-fest',
+    creds: 'NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (o SUPABASE_SECRET_KEY)',
+    description:
+      'UPSERT organizacion hibrida-fest + 3 eventos vía API (sin DATABASE_URL; alinea con 014/015). Añade --verify para comprobar columnas y datos.',
+  },
+  {
+    id: 'events-discover',
+    run: 'node scripts/guia-base-datos.mjs run events-discover [--per-artist-max N|--max N] [--artist-limit N] [--max-total N] [--keywords-only] [--also-keywords]',
+    npm: 'npm run db:events:discover -- --per-artist-max 15',
+    creds: 'OPENAI + SERPAPI + URL + SERVICE_ROLE (por defecto busca por nombres de artistas en public.artists)',
+    description:
+      'Uno por uno: por cada artista (y cada query keywords) → Serp → OpenAI → UPSERT. --max-total para parar tras N filas OK. --keywords-only = solo queries genéricas.',
+  },
+  {
     id: 'migrate-files',
     run: 'node scripts/guia-base-datos.mjs run migrate-files -- 010_x.sql 011_y.sql',
     npm: 'npm run db:migrate:raveart (ejemplo fijo en package.json)',
@@ -140,6 +155,8 @@ Punto de entrada unificado:
   photo -- …             elegir-foto-artista.mjs
   seed                   seed-supabase (solo seed)
   migrate                seed-supabase --all
+  push-hibrida-fest      push-hibrida-fest.mjs (API service role)
+  events-discover …      descubrir-eventos-breakbeat.mjs (OpenAI + Serp → events)
   migrate-files -- …     seed-supabase --files …
   verify                 seed-supabase --verify
   timeline [args]        sync-timeline-artists.mjs
@@ -182,6 +199,13 @@ CATÁLOGO EN CASTELLANO (scripts/ — qué es cada cosa)
 
 • seed-supabase.mjs — «Migraciones SQL y semilla». Ejecuta .sql contra Postgres
   (--all, --files, o solo seed). Modo --verify: solo lee conteos (anon), no escribe.
+
+• push-hibrida-fest.mjs — UPSERT de organizations/events Hibrida Fest por API
+  (service role) si no hay DATABASE_URL; mismo contenido que 014_….sql.
+
+• descubrir-eventos-breakbeat.mjs — Por cada artista operativo: Serp → OpenAI
+  (tope --per-artist-max) → UPSERT; opcional ronda keywords igual de secuencial.
+  Flags: --also-keywords, --artist-limit, --max-total, --openai-delay-ms.
 
 • sync-timeline-artists.mjs — «Artistas que salen en la cronología web». Sin
   flags: INSERT en artists de los que faltan. Con --sql: solo genera/actualiza
@@ -306,6 +330,12 @@ function main() {
       break
     case 'migrate':
       runNode('seed-supabase.mjs', ['--all'])
+      break
+    case 'push-hibrida-fest':
+      runNode('push-hibrida-fest.mjs', rest)
+      break
+    case 'events-discover':
+      runNode('descubrir-eventos-breakbeat.mjs', rest)
       break
     case 'migrate-files': {
       const files = stripLeadingDashDash(rest)

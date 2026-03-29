@@ -109,19 +109,12 @@ export default async function EventsPage({ params }: { params: { lang: Locale } 
     const bTime = b.date_start ? Date.parse(b.date_start) : Number.NEGATIVE_INFINITY
     return bTime - aTime
   })
-  const filters = Object.entries(dict.events.filters) as [string, string][]
-
   return (
     <div className="lined min-h-screen">
       <section className="px-4 sm:px-6 pt-10 pb-10 sm:pt-16 sm:pb-12 border-b-[5px] border-[var(--ink)]">
         <div className="sec-tag">EVENTS</div>
         <h1 className="sec-title">{dict.events.title}<br /><span className="hl">BREAKBEAT</span></h1>
         <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '17px', lineHeight: 1.8, maxWidth: '700px', color: 'var(--dim)' }}>{dict.events.subtitle}</p>
-        <div className="flex flex-wrap gap-2 mt-8">
-          {filters.map(([key, label]) => (
-            <span key={key} className={`cutout ${key === 'all' ? 'red' : 'outline'}`}>{label}</span>
-          ))}
-        </div>
       </section>
       <section className="px-4 sm:px-6 py-10 sm:py-12">
         {list.length > 0 ? (

@@ -9,10 +9,17 @@
  *   node scripts/seed-supabase.mjs --files 010_....sql 011_....sql  → solo esos archivos (BD ya existente)
  *   npm run db:verify            → cuenta filas vía API (NEXT_PUBLIC_* + anon; no usa Postgres directo)
  *
- * URI de Postgres, en este orden:
- *   1) DATABASE_URL, SUPABASE_DB_URL, POSTGRES_URL, SUPABASE_POSTGRES_URL, POSTGRES_PRISMA_URL
- *   2) Si no hay URI: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_DB_PASSWORD (o POSTGRES_PASSWORD)
- *      → conexión directa db.<ref>.supabase.co:5432 (usuario postgres).
+ * URI de Postgres, en este orden (primera no vacía gana):
+ *   1) DATABASE_URL, DIRECT_URL (Prisma), SUPABASE_DB_URL, POSTGRES_URL, POSTGRES_URL_NON_POOLING,
+ *      SUPABASE_POSTGRES_URL, POSTGRES_PRISMA_URL, SUPABASE_DATABASE_URL
+ *   2) Si no hay URI: NEXT_PUBLIC_SUPABASE_URL + contraseña de la base (no es la anon/service_role):
+ *      SUPABASE_DB_PASSWORD, POSTGRES_PASSWORD, PGPASSWORD, DATABASE_PASSWORD
+ *      → postgresql://postgres:...@db.<ref>.supabase.co:5432/postgres
+ *
+ * Variables: se fusionan .env y .env.local (local gana; no pisan variables ya definidas en el shell).
+ *
+ * Nota: SUPABASE_SERVICE_ROLE_KEY / SUPABASE_SECRET_KEY sirven para la API REST (otros scripts),
+ * pero no pueden abrir una sesión libpq/pg; para migraciones .sql hace falta URI o contraseña de BD.
  */
 
 import { readFileSync, existsSync, readdirSync } from 'fs'
@@ -24,12 +31,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const MIGRATIONS_DIR = join(ROOT, 'supabase', 'migrations')
 
-function loadEnvLocal() {
-  const p = join(ROOT, '.env.local')
-  if (!existsSync(p)) return
-  let text = readFileSync(p, 'utf8')
-  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1)
-  for (const line of text.split('\n')) {
+/** Parsea KEY=VAL por líneas; devuelve mapa (sin mutar process.env). */
+function parseEnvText(text) {
+  const out = {}
+  let t0 = text
+  if (t0.charCodeAt(0) === 0xfeff) t0 = t0.slice(1)
+  for (const line of t0.split('\n')) {
     let t = line.trim()
     if (t.startsWith('export ')) t = t.slice(7).trim()
     if (!t || t.startsWith('#')) continue
@@ -43,16 +50,34 @@ function loadEnvLocal() {
     ) {
       v = v.slice(1, -1)
     }
+    out[k] = v
+  }
+  return out
+}
+
+/** Carga .env y .env.local como Next: mismo nombre → gana .env.local; el shell sigue mandando. */
+function loadEnvLocal() {
+  const base = existsSync(join(ROOT, '.env'))
+    ? parseEnvText(readFileSync(join(ROOT, '.env'), 'utf8'))
+    : {}
+  const local = existsSync(join(ROOT, '.env.local'))
+    ? parseEnvText(readFileSync(join(ROOT, '.env.local'), 'utf8'))
+    : {}
+  const merged = { ...base, ...local }
+  for (const [k, v] of Object.entries(merged)) {
     if (process.env[k] === undefined) process.env[k] = v
   }
 }
 
 const DB_URI_KEYS = [
   'DATABASE_URL',
+  'DIRECT_URL',
   'SUPABASE_DB_URL',
   'POSTGRES_URL',
+  'POSTGRES_URL_NON_POOLING',
   'SUPABASE_POSTGRES_URL',
   'POSTGRES_PRISMA_URL',
+  'SUPABASE_DATABASE_URL',
 ]
 
 /** Ref del proyecto desde https://xxxx.supabase.co (no sirve con dominio custom). */
@@ -66,6 +91,8 @@ function connectionStringFromPasswordAndPublicUrl() {
   const password = (
     process.env.SUPABASE_DB_PASSWORD ||
     process.env.POSTGRES_PASSWORD ||
+    process.env.PGPASSWORD ||
+    process.env.DATABASE_PASSWORD ||
     ''
   ).trim()
   const ref = supabaseRefFromPublicUrl(
@@ -89,17 +116,33 @@ function connectionOptions() {
     connectionString = connectionStringFromPasswordAndPublicUrl()
   }
   if (!connectionString) {
+    const hasUrl = !!supabaseRefFromPublicUrl(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    )
+    const serviceKey = (
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_SECRET_KEY ||
+      ''
+    )
+      .toString()
+      .trim()
+    const hasService = !!serviceKey
     console.error(
-      'No hay forma de conectar a Postgres. Elige UNA de estas opciones en .env.local:\n\n' +
-        'A) Pega la URI del panel (línea sin # al inicio):\n' +
-        '   DATABASE_URL=postgresql://...\n' +
-        '   (Supabase → Project Settings → Database → Connection string → URI)\n\n' +
-        'B) Solo la contraseña de la base de datos (la del proyecto, no anon/service_role):\n' +
-        '   SUPABASE_DB_PASSWORD=...\n' +
-        '   (y mantén NEXT_PUBLIC_SUPABASE_URL=https://TU_REF.supabase.co)\n\n' +
-        'Otros nombres para la URI completa: ' +
+      'No hay forma de conectar a Postgres para ejecutar SQL.\n\n' +
+        'A) URI completa (recomendado), en .env o .env.local, sin comentar con #:\n' +
+        '   DATABASE_URL=postgresql://postgres.[ref]:[password]@...\n' +
+        '   Supabase → Project Settings → Database → Connection string → URI\n' +
+        '   Alias reconocidos: ' +
         DB_URI_KEYS.join(', ') +
-        '.'
+        '.\n\n' +
+        'B) Contraseña de la base de datos (Settings → Database; NO es anon ni service_role):\n' +
+        '   SUPABASE_DB_PASSWORD=...   (y NEXT_PUBLIC_SUPABASE_URL=https://TU_REF.supabase.co)\n' +
+        '   También: POSTGRES_PASSWORD, PGPASSWORD, DATABASE_PASSWORD.\n\n' +
+        (hasService && hasUrl
+          ? 'Tienes service_role + URL: eso sirve para scripts vía API (p. ej. actualizar-artista), ' +
+            'pero las migraciones .sql usan el cliente Postgres y necesitan A) o B).\n\n'
+          : '') +
+        'Puedes definir DATABASE_URL solo en .env y el resto en .env.local: ambos se cargan.',
     )
     process.exit(1)
   }

@@ -251,6 +251,22 @@ export interface Organization extends Record<string, unknown> {
   is_featured: boolean
 }
 
+export interface EventStage {
+  name: string
+  description_en?: string
+  description_es?: string
+  lineup?: string[]
+}
+
+export interface EventScheduleSlot {
+  time: string
+  artist: string
+  stage?: string
+  duration_min?: number
+  is_b2b?: boolean
+  note?: string
+}
+
 export interface BreakEvent extends Record<string, unknown> {
   id: string
   created_at: string
@@ -270,6 +286,17 @@ export interface BreakEvent extends Record<string, unknown> {
   lineup: string[]
   is_featured: boolean
   promoter_organization_id: string | null
+  stages: EventStage[]
+  schedule: EventScheduleSlot[]
+  tickets_url: string | null
+  socials: Record<string, string>
+  capacity: number | null
+  age_restriction: string | null
+  tags: string[]
+  doors_open: string | null
+  doors_close: string | null
+  address: string | null
+  coords: { lat: number; lng: number } | null
 }
 
 export interface BlogPost extends Record<string, unknown> {

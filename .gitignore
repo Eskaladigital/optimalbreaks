@@ -18,6 +18,7 @@ dist/
 
 # Artistas: canónico en Supabase; JSON locales (agente, export, db:artist)
 data/artists/*.json
+data/events/discovered*.json
 
 # Debug / logs de agentes (no versionar)
 batch-agent-artists.log

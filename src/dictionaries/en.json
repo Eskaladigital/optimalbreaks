@@ -320,9 +320,21 @@
     "view_large": "Large",
     "view_compact": "Compact",
     "view_list": "List",
+    "view_calendar": "Calendar",
+    "calendar_legend": "Days with at least one event",
+    "calendar_undated_hint": "These events have no specific date; switch view to see them.",
     "poster_zoom_aria": "Open poster full size",
     "poster_close": "Close",
-    "poster_lightbox_title": "Event poster"
+    "poster_lightbox_title": "Event poster",
+    "date_filter": {
+      "when_label": "When",
+      "all_when": "Any",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "undated": "No date",
+      "showing": "Showing {n} of {total}",
+      "no_results": "No events match these filters."
+    }
   },
   "scenes": {
     "title": "Scenes",
