@@ -2,6 +2,8 @@
  * Cruza la lista extendida de artistas con public.artists en Supabase e inserta faltantes.
  * Misma convención de slug que sync-timeline-artists.mjs + artistSlug en artists-timeline.
  *
+ * Índice agente: scripts/guia-base-datos.mjs → run user-list
+ *
  * Uso: node scripts/sync-user-list-artists.mjs
  * Requiere: .env.local → NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (o SECRET)
  */

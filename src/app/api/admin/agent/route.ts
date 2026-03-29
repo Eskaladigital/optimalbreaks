@@ -1,9 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
+import { createServiceSupabase } from '@/lib/supabase-admin'
 import { readFileSync, existsSync } from 'fs'
-import path from 'path'
+import path, { join } from 'path'
+import { pathToFileURL } from 'url'
 
 const VALID_CATEGORIES = ['pioneer', 'uk_legend', 'us_artist', 'andalusian', 'current', 'crew']
+
+/** Coincide con buildBioEs() en scripts/sync-user-list-artists.mjs */
+const BIO_ES_LISTADO_EXTENDIDO_PREFIX = 'Incluido en el listado extendido'
+
+/**
+ * Cola editorial: artistas cuyo bio_es sigue siendo la ficha mínima del listado extendido (pendientes de texto real).
+ * GET /api/admin/agent?queue=listado-extendido
+ */
+export async function GET(request: NextRequest) {
+  const auth = await requireAdmin(request)
+  if (!auth.ok) return auth.response
+
+  const queue = request.nextUrl.searchParams.get('queue')
+  if (queue !== 'listado-extendido') {
+    return NextResponse.json(
+      { error: 'Usa ?queue=listado-extendido para obtener la cola de fichas pendientes.' },
+      { status: 400 },
+    )
+  }
+
+  try {
+    const sb = createServiceSupabase()
+    const artists: { slug: string; name: string }[] = []
+    const pageSize = 1000
+    let from = 0
+    for (;;) {
+      const { data, error } = await sb
+        .from('artists')
+        .select('slug,name')
+        .like('bio_es', `${BIO_ES_LISTADO_EXTENDIDO_PREFIX}%`)
+        .order('slug', { ascending: true })
+        .range(from, from + pageSize - 1)
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      if (!data?.length) break
+      for (const row of data) {
+        if (row.slug && row.name) {
+          artists.push({ slug: row.slug, name: row.name })
+        }
+      }
+      if (data.length < pageSize) break
+      from += pageSize
+    }
+
+    return NextResponse.json({
+      count: artists.length,
+      prefix: BIO_ES_LISTADO_EXTENDIDO_PREFIX,
+      artists,
+    })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
+}
 
 function loadSystemPrompt(): string {
   const p = path.resolve(process.cwd(), 'scripts', 'prompts', 'artista-agente-system.txt')
@@ -234,5 +292,26 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  return NextResponse.json(normalized)
+  const upsertUrl = pathToFileURL(
+    join(process.cwd(), 'scripts', 'lib', 'artist-upsert.mjs'),
+  ).href
+  const { upsertArtist } = await import(upsertUrl)
+
+  let saved = false
+  let row: { id: string; slug: string; name: string; created_at: string } | null = null
+  let dbError: string | undefined
+
+  try {
+    row = (await upsertArtist(normalized)) as typeof row
+    saved = true
+  } catch (e) {
+    dbError = e instanceof Error ? e.message : String(e)
+  }
+
+  return NextResponse.json({
+    artist: normalized,
+    saved,
+    row: saved ? row : undefined,
+    dbError: saved ? undefined : dbError,
+  })
 }

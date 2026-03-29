@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "db:guia": "node scripts/guia-base-datos.mjs",
     "db:seed": "node scripts/seed-supabase.mjs",
     "db:migrate": "node scripts/seed-supabase.mjs --all",
     "db:migrate:raveart": "node scripts/seed-supabase.mjs --files 010_raveart_organizations.sql 011_raveart_gallery_events.sql",
@@ -15,10 +16,12 @@
     "db:artist:ensure": "node scripts/ensure-artist-json-in-db.mjs",
     "db:artist:agent": "node scripts/generar-artista-agente.mjs",
     "db:artist:agent:all": "node scripts/generar-artista-agente.mjs --from-db",
+    "db:artist:agent:pendientes": "node scripts/generar-artista-agente.mjs --from-db --starter-bio-only",
     "db:timeline": "node scripts/sync-timeline-artists.mjs",
     "db:timeline:sql": "node scripts/sync-timeline-artists.mjs --sql",
     "db:user-list": "node scripts/sync-user-list-artists.mjs",
-    "media:upload": "node scripts/upload-storage-media.mjs"
+    "media:upload": "node scripts/upload-storage-media.mjs",
+    "db:artist:photo": "node scripts/elegir-foto-artista.mjs"
   },
   "dependencies": {
     "next": "^14.2.0",

@@ -1,11 +1,17 @@
 /**
  * Sube un archivo local al bucket público `media` (Supabase Storage).
  *
+ * Índice agente: scripts/guia-base-datos.mjs → run media-upload -- <archivo> <ruta-bucket>
+ *
  * Uso:
  *   node scripts/upload-storage-media.mjs <archivo-local> <ruta-en-bucket>
+ *   node scripts/upload-storage-media.mjs --url <https://...> <ruta-en-bucket>
  *
  * Ejemplo (tras descargar o exportar una portada):
  *   node scripts/upload-storage-media.mjs ./cover.jpg events/raveart-summer-festival-2025/cover.webp
+ *
+ * Ejemplo (descarga y sube sin archivo local):
+ *   node scripts/upload-storage-media.mjs --url https://example.com/x.jpg artists/foo/cover.jpg
  *
  * Credenciales (.env.local): NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY o SUPABASE_SECRET_KEY
  *
@@ -55,9 +61,61 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
 const key =
   process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_SECRET_KEY?.trim() || ''
 
-const [, localPath, objectPath] = process.argv
+const argv = process.argv.slice(2)
+const fromUrl = argv[0] === '--url'
+let buf
+let contentTypeHint = 'image/jpeg'
+
+if (fromUrl) {
+  const imageUrl = argv[1]
+  const objectPath = argv[2]
+  if (!imageUrl || !objectPath || !/^https:\/\//i.test(imageUrl)) {
+    console.error('Uso: node scripts/upload-storage-media.mjs --url <https://...> <ruta-en-bucket>')
+    process.exit(1)
+  }
+  if (!url || !key) {
+    console.error(
+      'Faltan NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY (o SUPABASE_SECRET_KEY) en .env.local',
+    )
+    process.exit(1)
+  }
+  const normalized = objectPath.replace(/^\/+/, '')
+  console.log('Descargando:', imageUrl)
+  const res = await fetch(imageUrl, {
+    headers: {
+      'User-Agent': 'OptimalBreaksMediaMirror/1.0 (archivo propio; CC donde aplique)',
+    },
+  })
+  if (!res.ok) {
+    console.error('HTTP', res.status, res.statusText)
+    process.exit(1)
+  }
+  buf = Buffer.from(await res.arrayBuffer())
+  const ct = res.headers.get('content-type')
+  if (ct && ct.startsWith('image/')) contentTypeHint = ct.split(';')[0].trim()
+  else contentTypeHint = mimeForPath(normalized)
+
+  const client = createClient(url, key, { auth: { persistSession: false } })
+  const { data, error } = await client.storage.from('media').upload(normalized, buf, {
+    contentType: contentTypeHint,
+    upsert: true,
+  })
+  if (error) {
+    console.error('Error al subir:', error.message)
+    process.exit(1)
+  }
+  const publicUrl = `${url.replace(/\/$/, '')}/storage/v1/object/public/media/${normalized}`
+  console.log('OK:', data?.path || normalized)
+  console.log('URL pública:', publicUrl)
+  console.log('SQL ejemplo: UPDATE public.artists SET image_url = ' + JSON.stringify(publicUrl) + " WHERE slug = '…';")
+  process.exit(0)
+}
+
+const localPath = argv[0]
+const objectPath = argv[1]
 if (!localPath || !objectPath) {
   console.error('Uso: node scripts/upload-storage-media.mjs <archivo-local> <ruta-en-bucket>')
+  console.error('  o: node scripts/upload-storage-media.mjs --url <https://...> <ruta-en-bucket>')
   process.exit(1)
 }
 if (!url || !key) {
@@ -72,7 +130,7 @@ if (!existsSync(abs)) {
 }
 
 const normalized = objectPath.replace(/^\/+/, '')
-const buf = readFileSync(abs)
+buf = readFileSync(abs)
 const client = createClient(url, key, { auth: { persistSession: false } })
 
 const { data, error } = await client.storage.from('media').upload(normalized, buf, {

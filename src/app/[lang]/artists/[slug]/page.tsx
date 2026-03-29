@@ -155,30 +155,46 @@ export default async function ArtistDetailPage({ params }: Props) {
           <span className="arrow">←</span> {lang === 'es' ? 'Volver a Artistas' : 'Back to Artists'}
         </Link>
 
-        <div className="sec-tag">{artist.category?.toUpperCase().replace('_', ' ') || 'ARTIST'}</div>
-        <h1 className="sec-title">
-          <span className="hl">{artist.name_display || artist.name}</span>
-        </h1>
-
-        {artist.real_name && (
-          <p style={{ fontFamily: "'Courier Prime', monospace", fontSize: '14px', letterSpacing: '1px', color: 'var(--dim)', marginTop: '-8px', marginBottom: '16px' }}>
-            {artist.real_name}
-          </p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-3 mb-8">
-          <FanCounter type="artist" entityId={artist.id} lang={lang} />
-          <ShareButtons url={`/${lang}/artists/${slug}`} title={`${artist.name} | Optimal Breaks`} lang={lang} />
-        </div>
-
-        <div className="mb-8 -mx-4 sm:mx-0 border-y-[3px] border-[var(--ink)] overflow-hidden">
-          <CardThumbnail
-            src={artist.image_url}
-            alt={artist.name_display || artist.name}
-            heightClass="h-48 sm:h-64 md:h-72"
-            frameClass="border-0"
-          />
-        </div>
+        {/* Hero: misma proporción cuadrada que las cards del listado; en md+ foto + nombre en fila */}
+        <header className="mb-8 md:mb-10 border-b-[3px] border-[var(--ink)] pb-8 md:pb-10">
+          <div className="flex flex-col-reverse md:flex-row gap-6 md:gap-8 lg:gap-10 items-stretch md:items-start">
+            <div className="w-full max-w-[min(100%,300px)] sm:max-w-[340px] md:max-w-[min(400px,40vw)] shrink-0 mx-auto md:mx-0">
+              <CardThumbnail
+                src={artist.image_url}
+                alt={artist.name_display || artist.name}
+                aspectClass="aspect-square w-full"
+                frameClass="border-[3px] border-[var(--ink)]"
+              />
+            </div>
+            <div className="min-w-0 flex-1 flex flex-col justify-center md:justify-start md:pt-0">
+              <div className="sec-tag w-fit">{artist.category?.toUpperCase().replace('_', ' ') || 'ARTIST'}</div>
+              <h1 className="sec-title mt-2 md:mt-3">
+                <span className="hl">{artist.name_display || artist.name}</span>
+              </h1>
+              {artist.real_name && (
+                <p
+                  className="mt-1"
+                  style={{
+                    fontFamily: "'Courier Prime', monospace",
+                    fontSize: '14px',
+                    letterSpacing: '1px',
+                    color: 'var(--dim)',
+                  }}
+                >
+                  {artist.real_name}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-6">
+                <FanCounter type="artist" entityId={artist.id} lang={lang} />
+                <ShareButtons
+                  url={`/${lang}/artists/${slug}`}
+                  title={`${artist.name} | Optimal Breaks`}
+                  lang={lang}
+                />
+              </div>
+            </div>
+          </div>
+        </header>
 
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-0 border-4 border-[var(--ink)]">
           {/* Bio */}

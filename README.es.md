@@ -86,19 +86,19 @@ Más detalle y tabla de migraciones SQL en [README.md](./README.md).
 
 ### Ficha en la web: qué manda y la caché
 
-- La web lee **`artists` en Supabase** (misma URL que `NEXT_PUBLIC_SUPABASE_URL` en Vercel). **Git/commit no actualiza la bio** hasta que ejecutes **`db:artist`** o guardes desde el admin contra ese proyecto.
+- La web lee **`artists` en Supabase** (misma URL que `NEXT_PUBLIC_SUPABASE_URL` en Vercel). **Git/commit no actualiza la bio** hasta que haya un UPSERT en ese proyecto (`db:artist`, agente CLI por defecto, o panel admin).
 - Si ves el texto corto tipo *«Incluido en el listado extendido…»*, la fila viene de **`db:user-list`** (o equivalente); sustitúyela con JSON + **`db:artist`**.
 - Rutas **`/artists`**: el layout del segmento fuerza datos frescos (`revalidate` 0, `fetchCache` sin store), cabeceras **`no-store`** en `next.config.js` y el **service worker** no guarda HTML de URLs con `/artists`, para que tras publicar en BD no se quede una página vieja en CDN o PWA.
 
 ### Agente de biografías (OpenAI)
 
-Genera o reescribe **`data/artists/<slug>.json`** (mismo esquema que `db:artist`). **No escribe en Supabase:** la web lee la base; después del agente hay que ejecutar **`npm run db:artist`**.
+Por defecto **hace UPSERT en Supabase** (misma credencial que `db:artist`). Opcional **`--json-only`** solo archivo; **`--save-json`** BD + copia en `data/artists/`.
 
 Documentación detallada: **[`docs/ARTIST_AI_AGENT.md`](./docs/ARTIST_AI_AGENT.md)**. Prompt del sistema: **`scripts/prompts/artista-agente-system.txt`**.
 
 ```bash
 npm run db:artist:agent -- plump-djs "Plump DJs"
-npm run db:artist:agent:all                                    # todos los artistas en BD → JSON (coste API)
+npm run db:artist:agent:all                                    # regenera cada fila en BD (coste API)
 npm run db:artist:ensure -- data/artists/deekline.json         # comprobar JSON vs BD y sincronizar si difiere
 ```
 

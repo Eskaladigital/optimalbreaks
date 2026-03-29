@@ -1,6 +1,8 @@
 /**
  * Ejecuta migraciones SQL contra Postgres (Supabase) usando DATABASE_URL.
  *
+ * Índice agente: scripts/guia-base-datos.mjs → run seed | run migrate | run verify | run migrate-files …
+ *
  * Uso:
  *   npm run db:seed              → solo 002_seed_data.sql (requiere esquema ya aplicado)
  *   npm run db:migrate           → todos los *.sql en supabase/migrations (orden alfabético)

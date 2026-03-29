@@ -1,23 +1,30 @@
 /**
- * OPTIMAL BREAKS — Agente (OpenAI + búsqueda opcional) → JSON de artista
+ * OPTIMAL BREAKS — Agente (OpenAI + búsqueda opcional) → Supabase (tabla artists)
+ *
+ * Índice agente: scripts/guia-base-datos.mjs → run agent -- …
+ *
+ * Por defecto hace UPSERT directo en la base (Postgres o API con service role).
+ * Opcional: solo JSON en disco con --json-only; copia de seguridad con --save-json.
  *
  * Uso:
- *   node scripts/generar-artista-agente.mjs <slug> "Nombre del artista" [--notes archivo.txt] [--stdout] [--no-search]
  *   npm run db:artist:agent -- krafty-kuts "Krafty Kuts"
- *   npm run db:artist:agent:all --              # todos en BD (opcional: --skip=slug1,slug2)
- *   npm run db:artist:agent:all -- --limit 3  # prueba con 3
+ *   npm run db:artist:agent -- slug "Nombre" [--notes archivo.txt] [--no-search]
+ *   npm run db:artist:agent -- slug "Nombre" --json-only     # sin BD, solo data/artists/<slug>.json
+ *   npm run db:artist:agent -- slug "Nombre" --save-json     # BD + copia JSON
+ *   npm run db:artist:agent -- slug "Nombre" --stdout        # JSON por stdout, sin BD
+ *   npm run db:artist:agent:all -- [--limit N] [--skip=a,b] [--no-search]
+ *   npm run db:artist:agent:all -- --from-db --starter-bio-only   # solo bio_es plantilla «Incluido en el listado extendido…»
  *
- * Requiere OPENAI_API_KEY en .env.local.
- * Opcional: SERPAPI_API_KEY (Google via serpapi.com) para contexto de búsqueda.
- *
- * Escribe por defecto: data/artists/<slug>.json
- * Luego: npm run db:artist -- data/artists/<slug>.json
+ * Requiere OPENAI_API_KEY. Para escribir en BD: misma config que npm run db:artist
+ * (DATABASE_URL o SUPABASE_DB_PASSWORD+URL o URL+SUPABASE_SERVICE_ROLE_KEY).
+ * Opcional: SERPAPI_API_KEY para contexto web.
  */
 
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs'
 import { resolve, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
+import { upsertArtist } from './lib/artist-upsert.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -242,7 +249,10 @@ function validateMinimal(obj) {
 }
 
 /**
- * Genera y opcionalmente escribe data/artists/<slug>.json. Lanza Error si falla.
+ * Genera ficha con OpenAI y por defecto hace UPSERT en Supabase.
+ * @param {object} opts
+ * @param {boolean} [opts.jsonOnly] — solo escribir JSON, no tocar BD
+ * @param {boolean} [opts.saveJson] — tras guardar en BD, también escribir data/artists/<slug>.json
  */
 export async function runArtistAgent({
   slug,
@@ -250,6 +260,8 @@ export async function runArtistAgent({
   extraNotes = '',
   noSearch = false,
   stdout = false,
+  jsonOnly = false,
+  saveJson = false,
   quiet = false,
 }) {
   let research = ''
@@ -282,22 +294,55 @@ export async function runArtistAgent({
   }
 
   const jsonOut = JSON.stringify(normalized, null, 2) + '\n'
+
   if (stdout) {
     process.stdout.write(jsonOut)
-    return { path: null, slug: normalized.slug }
+    return { path: null, slug: normalized.slug, savedDb: false }
   }
+
   const dir = join(ROOT, 'data', 'artists')
-  mkdirSync(dir, { recursive: true })
   const outPath = join(dir, `${normalized.slug}.json`)
-  writeFileSync(outPath, jsonOut, 'utf8')
-  if (!quiet) {
-    console.log('Escrito:', outPath)
-    console.log('Siguiente paso: npm run db:artist -- data/artists/' + normalized.slug + '.json')
+
+  if (jsonOnly) {
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(outPath, jsonOut, 'utf8')
+    if (!quiet) {
+      console.log('Solo JSON (--json-only):', outPath)
+    }
+    return { path: outPath, slug: normalized.slug, savedDb: false }
   }
-  return { path: outPath, slug: normalized.slug }
+
+  let row
+  try {
+    row = await upsertArtist(normalized)
+  } catch (e) {
+    throw new Error(
+      `${e.message}\n\nSi quieres generar solo el archivo sin BD: añade --json-only al comando.`,
+    )
+  }
+
+  if (saveJson) {
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(outPath, jsonOut, 'utf8')
+    if (!quiet) console.log('Copia JSON:', outPath)
+  }
+
+  if (!quiet) {
+    console.log('Guardado en Supabase:', row.slug, '| id:', row.id)
+  }
+
+  return {
+    path: saveJson ? outPath : null,
+    slug: normalized.slug,
+    savedDb: true,
+    row,
+  }
 }
 
-async function fetchAllArtistsFromSupabase() {
+/** Misma cadena que buildBioEs en sync-user-list-artists.mjs (fichas pendientes de redacción). */
+const BIO_ES_LISTADO_EXTENDIDO_PREFIX = 'Incluido en el listado extendido'
+
+async function fetchAllArtistsFromSupabase({ starterBioOnly = false } = {}) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim()
   const key = (
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -314,14 +359,20 @@ async function fetchAllArtistsFromSupabase() {
   const page = 1000
   let from = 0
   for (;;) {
-    const { data, error } = await sb
-      .from('artists')
-      .select('slug,name')
-      .order('slug', { ascending: true })
-      .range(from, from + page - 1)
+    let q = sb.from('artists').select('slug,name').order('slug', { ascending: true })
+    if (starterBioOnly) {
+      q = q.like('bio_es', `${BIO_ES_LISTADO_EXTENDIDO_PREFIX}%`)
+    }
+    const { data, error } = await q.range(from, from + page - 1)
     if (error) throw new Error(error.message)
     if (!data?.length) break
-    all.push(...data)
+    if (starterBioOnly) {
+      for (const row of data) {
+        all.push({ slug: row.slug, name: row.name })
+      }
+    } else {
+      all.push(...data)
+    }
     if (data.length < page) break
     from += page
   }
@@ -354,13 +405,16 @@ async function runFromDbMode(argv) {
   const limit = parseLimit(argv)
   const delayMs = parseDelayMs(argv)
   const noSearch = argv.includes('--no-search')
+  const jsonOnly = argv.includes('--json-only')
+  const saveJson = argv.includes('--save-json')
+  const starterBioOnly = argv.includes('--starter-bio-only')
 
-  const rows = await fetchAllArtistsFromSupabase()
+  const rows = await fetchAllArtistsFromSupabase({ starterBioOnly })
   let todo = rows.filter((r) => r.slug && !skipSlugs.has(r.slug))
   if (Number.isFinite(limit)) todo = todo.slice(0, limit)
 
   console.log(
-    `[batch] ${todo.length} artistas (omitidos: ${[...skipSlugs].join(', ')}); pausa ${delayMs} ms entre llamadas`,
+    `[batch] ${todo.length} artistas${starterBioOnly ? ' (solo bio_es plantilla «listado extendido»)' : ''} (omitidos: ${[...skipSlugs].join(', ')}); pausa ${delayMs} ms entre llamadas`,
   )
 
   let ok = 0
@@ -373,7 +427,16 @@ async function runFromDbMode(argv) {
     let lastErr = null
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        await runArtistAgent({ slug, artistName, extraNotes: '', noSearch, stdout: false, quiet: true })
+        await runArtistAgent({
+          slug,
+          artistName,
+          extraNotes: '',
+          noSearch,
+          stdout: false,
+          jsonOnly,
+          saveJson,
+          quiet: true,
+        })
         ok++
         lastErr = null
         break
@@ -409,10 +472,14 @@ async function main() {
 
   let noSearch = false
   let stdout = false
+  let jsonOnly = false
+  let saveJson = false
   const filtered = []
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--no-search') noSearch = true
     else if (argv[i] === '--stdout') stdout = true
+    else if (argv[i] === '--json-only') jsonOnly = true
+    else if (argv[i] === '--save-json') saveJson = true
     else if (argv[i] === '--notes' && argv[i + 1]) {
       filtered.push({ type: 'notes', path: argv[++i] })
     } else filtered.push(argv[i])
@@ -420,9 +487,11 @@ async function main() {
   const pos = filtered.filter((x) => typeof x === 'string')
   if (pos.length < 2) {
     console.error(
-      `Uso: node scripts/generar-artista-agente.mjs <slug> "Nombre artista" [--notes ruta.txt] [--stdout] [--no-search]`,
+      `Uso: node scripts/generar-artista-agente.mjs <slug> "Nombre artista" [--notes ruta] [--no-search] [--stdout] [--json-only] [--save-json]`,
     )
-    console.error(`   o: node scripts/generar-artista-agente.mjs --from-db [--limit N] [--delay-ms ms] [--no-search] [--skip=a,b]`)
+    console.error(
+      `   o: node scripts/generar-artista-agente.mjs --from-db [--starter-bio-only] [--limit N] [--delay-ms ms] [--no-search] [--skip=a,b] [--save-json]  # --starter-bio-only = solo bio_es «Incluido en el listado extendido…»`,
+    )
     process.exit(1)
   }
   const slug = pos[0]
@@ -439,7 +508,16 @@ async function main() {
   }
 
   try {
-    await runArtistAgent({ slug, artistName, extraNotes, noSearch, stdout, quiet: false })
+    await runArtistAgent({
+      slug,
+      artistName,
+      extraNotes,
+      noSearch,
+      stdout,
+      jsonOnly,
+      saveJson,
+      quiet: false,
+    })
   } catch (e) {
     console.error('[agente]', e.message)
     process.exit(1)

@@ -327,9 +327,9 @@ The script **upserts on `slug`**: updates an existing artist or inserts a new ro
 
 The browser **anon / publishable** key cannot be used for this write path. JWT keys and `sb_*` keys are **not** Postgres passwords; SQL migrations still need a real DB connection string or password when you use `db:migrate`.
 
-### 5b. Agent: generate artist JSON (OpenAI + optional SerpAPI)
+### 5b. Agent: generate artist profiles (OpenAI + optional SerpAPI)
 
-The agent writes **`data/artists/<slug>.json` only** — not Supabase. After generation, run **`npm run db:artist`** to upsert into the database (same schema as [`006_artist_extended_fields.sql`](supabase/migrations/006_artist_extended_fields.sql)).
+By default the agent **UPSERTs into Supabase** (same write path as **`npm run db:artist`**: Postgres connection string or service-role API). Optional **`--json-only`** writes only `data/artists/<slug>.json`; **`--save-json`** upserts **and** saves a JSON copy (schema: [`006_artist_extended_fields.sql`](supabase/migrations/006_artist_extended_fields.sql)).
 
 **Full documentation (batch mode, env vars, admin API, bulk sync):** [`docs/ARTIST_AI_AGENT.md`](docs/ARTIST_AI_AGENT.md).
 
@@ -341,11 +341,11 @@ Requires **`OPENAI_API_KEY`** in `.env.local`. Defaults to **`gpt-5.4`**; overri
 npm run db:artist:agent -- plump-djs "Plump DJs"
 npm run db:artist:agent -- some-slug "Artist Name" --notes research/artist-notes.txt
 npm run db:artist:agent -- some-slug "Artist" --no-search --stdout
-npm run db:artist:agent:all                    # regenerate JSON for every artist row in Supabase (slow / API cost)
+npm run db:artist:agent:all                    # regenerate and upsert every artist row in Supabase (slow / API cost)
 npm run db:artist:ensure -- data/artists/deekline.json   # verify DB matches JSON; sync if not
 ```
 
-Then review the JSON, fact-check, and run `npm run db:artist -- data/artists/<slug>.json`. **Always fact-check** before publishing.
+Fact-check bios and URLs after generation. If you used **`--json-only`**, run **`npm run db:artist -- data/artists/<slug>.json`** to publish.
 
 **Bulk upsert (all JSON files in `data/artists/`)** — from repo root, PowerShell:
 
@@ -361,8 +361,8 @@ for f in data/artists/*.json; do npm run db:artist -- "$f"; done
 
 ### 5c. Artist pages: Supabase vs Git, caching, placeholders
 
-- **Source of truth for the live site** is the **`artists` table** in the Supabase project configured as `NEXT_PUBLIC_SUPABASE_URL` in Vercel (or locally). Committing JSON to Git does **not** update bios until you run **`npm run db:artist`** (or save via the admin API) against that same project.
-- **`npm run db:user-list`** inserts **starter** rows for many names (short placeholder copy in ES/EN). Replace those profiles with the agent + **`db:artist`** when you have a full JSON.
+- **Source of truth for the live site** is the **`artists` table** in the Supabase project configured as `NEXT_PUBLIC_SUPABASE_URL` in Vercel (or locally). Committing JSON to Git does **not** update bios until an upsert runs against that project (**`npm run db:artist`**, the agent CLI by default, or admin save).
+- **`npm run db:user-list`** inserts **starter** rows for many names (short placeholder copy in ES/EN). Replace those profiles with the agent (default UPSERT) or **`db:artist`** when you have a full JSON.
 - **Caching:** Under `[lang]/artists`, the app sets **`revalidate = 0`**, **`fetchCache = 'force-no-store'`**, and **`next.config.js`** adds **`Cache-Control` / `CDN-Cache-Control: no-store`** for `/[lang]/artists` routes so HTML and Supabase-backed data are not served stale from the Data Cache or the CDN after you publish DB changes. The PWA **`public/sw.js`** does **not** cache HTML for paths containing **`/artists`** (offline fallback for those URLs is not a stale artist page).
 
 ### 6. Run development server
@@ -444,8 +444,8 @@ Files under `supabase/migrations/` (apply in lexical order):
 | `node scripts/seed-supabase.mjs --files <name>.sql …` | Run an explicit list of migration files by basename (no path traversal). |
 | `npm run db:seed` | Run `002_seed_data.sql` only (Postgres). |
 | `npm run db:verify` | Row-count sanity check via **Supabase HTTP API** (`NEXT_PUBLIC_SUPABASE_ANON_KEY` or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). |
-| `npm run db:artist:agent -- <slug> "Name"` | Generate `data/artists/<slug>.json` with OpenAI (+ optional SerpAPI). See [`docs/ARTIST_AI_AGENT.md`](docs/ARTIST_AI_AGENT.md). |
-| `npm run db:artist:agent:all` | Regenerate JSON for **all** artists listed in Supabase (uses API credits; then run `db:artist` per file or bulk script). |
+| `npm run db:artist:agent -- <slug> "Name"` | OpenAI (+ optional SerpAPI) → **UPSERT** `artists` by default; `--json-only` / `--save-json` for file-only or copy. See [`docs/ARTIST_AI_AGENT.md`](docs/ARTIST_AI_AGENT.md). |
+| `npm run db:artist:agent:all` | Regenerate **all** artist rows in Supabase via the agent (API credits); optional `--save-json` for `data/artists/` copies. |
 | `npm run db:timeline` | Insert **missing** artists from `src/lib/artists-timeline.ts` (`ARTIST_ERAS`, same names as `/artists`) via **Supabase API** (service/secret key). Skips slugs already in `artists`. |
 | `npm run db:timeline:sql` | Regenerate `009_artists_from_artist_eras_timeline.sql` (optional; for migrations without running the script against prod). |
 | `npm run db:user-list` | Insert **missing** artists from the extended name list in `sync-user-list-artists.mjs` (short **placeholder** bios until you enrich with agent + `db:artist`). |

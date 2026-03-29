@@ -2,6 +2,8 @@
  * Comprueba que la fila en Supabase coincide con un JSON local (bios y real_name).
  * Si no, ejecuta actualizar-artista.mjs (mismo .env.local).
  *
+ * Índice agente: scripts/guia-base-datos.mjs → run ensure data/artists/<slug>.json
+ *
  *   node scripts/ensure-artist-json-in-db.mjs data/artists/deekline.json
  */
 

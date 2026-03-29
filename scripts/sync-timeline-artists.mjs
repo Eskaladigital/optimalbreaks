@@ -1,6 +1,8 @@
 /**
  * OPTIMAL BREAKS — Sincronizar artistas de la cronología /artists (ARTIST_ERAS) con Supabase
  *
+ * Índice agente: scripts/guia-base-datos.mjs → run timeline | run timeline-sql
+ *
  * Lee src/lib/artists-timeline.ts, genera filas para slugs que aún no existen en public.artists
  * e inserta vía @supabase/supabase-js (service role / secret key).
  *
