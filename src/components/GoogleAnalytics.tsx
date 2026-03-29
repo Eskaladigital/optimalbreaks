@@ -1,6 +1,6 @@
 // ============================================
 // OPTIMAL BREAKS — Google Analytics 4 (gtag.js)
-// Implementación estricta: solo carga tras consentimiento.
+// Implementación estricta y directa. Solo carga tras consentimiento.
 // ============================================
 
 'use client'
@@ -17,7 +17,10 @@ function AnalyticsTracker({ enabled }: { enabled: boolean }) {
 
   useEffect(() => {
     if (enabled && typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
-      const url = pathname + searchParams.toString()
+      let url = pathname
+      const qs = searchParams.toString()
+      if (qs) url += `?${qs}`
+      
       ;(window as any).gtag('config', GA_ID, {
         page_path: url,
       })
@@ -31,12 +34,12 @@ export default function GoogleAnalytics() {
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    // Verificar estado inicial
+    // 1. Mirar la cookie inicial
     if (typeof document !== 'undefined' && document.cookie.includes('ob_cookie_consent=accepted')) {
       setEnabled(true)
     }
 
-    // Escuchar el evento de aceptación
+    // 2. Escuchar cuando el usuario le da a Aceptar
     const onConsent = (e: Event) => {
       const v = (e as CustomEvent<{ value?: string }>).detail?.value
       if (v === 'accepted') setEnabled(true)
@@ -47,22 +50,25 @@ export default function GoogleAnalytics() {
 
   if (!GA_ID || !enabled) return null
 
+  // Usamos un <script> nativo para la inicialización en línea
+  // para garantizar ejecución inmediata al cambiar el estado a true.
   return (
     <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
-      <Script id="google-analytics-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          // Definir gtag en window explícitamente por si acaso
-          window.gtag = gtag;
-          
-          gtag('js', new Date());
-          gtag('config', '${GA_ID}', {
-            page_path: window.location.pathname,
-          });
-        `}
-      </Script>
+      <script
+        id="ga-init"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}', {
+              page_path: window.location.pathname,
+            });
+          `,
+        }}
+      />
       <Suspense fallback={null}>
         <AnalyticsTracker enabled={enabled} />
       </Suspense>
