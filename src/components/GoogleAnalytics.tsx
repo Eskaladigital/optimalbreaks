@@ -1,5 +1,6 @@
 // ============================================
 // OPTIMAL BREAKS — Google Analytics 4 (gtag.js)
+// Only loads when analytics consent is granted.
 // ============================================
 
 'use client'
@@ -7,13 +8,14 @@
 import Script from 'next/script'
 import { useEffect, useState, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { readConsent, type CookieConsent } from './CookieBanner'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 declare global {
   interface Window {
-    dataLayer: any[];
-    gtag: (...args: any[]) => void;
+    dataLayer: any[]
+    gtag: (...args: any[]) => void
   }
 }
 
@@ -27,9 +29,7 @@ function AnalyticsTracker({ enabled }: { enabled: boolean }) {
       const qs = searchParams.toString()
       if (qs) url += `?${qs}`
 
-      window.gtag('event', 'page_view', {
-        page_path: url,
-      })
+      window.gtag('event', 'page_view', { page_path: url })
     }
   }, [pathname, searchParams, enabled])
 
@@ -40,13 +40,16 @@ export default function GoogleAnalytics() {
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    if (typeof document !== 'undefined' && document.cookie.includes('ob_cookie_consent=accepted')) {
-      setEnabled(true)
-    }
+    const saved = readConsent()
+    if (saved?.analytics) setEnabled(true)
 
     const onConsent = (e: Event) => {
-      const v = (e as CustomEvent<{ value?: string }>).detail?.value
-      if (v === 'accepted') setEnabled(true)
+      const consent = (e as CustomEvent<CookieConsent>).detail
+      if (consent?.analytics) {
+        setEnabled(true)
+      } else {
+        setEnabled(false)
+      }
     }
     window.addEventListener('ob-cookie-consent', onConsent)
     return () => window.removeEventListener('ob-cookie-consent', onConsent)
